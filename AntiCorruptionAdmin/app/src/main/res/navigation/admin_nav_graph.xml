@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/admin_nav_graph.xml"
+    app:startDestination="@id/adminHomeFragment">
+
+    <fragment
+        android:id="@+id/adminHomeFragment"
+        android:name="com.japnoor.anticorruptionadmin.AdminHomeFragment"
+        android:label="AdminHomeFragment" >
+        <action
+            android:id="@+id/action_adminHomeFragment_to_adminTotalComplaints"
+            app:destination="@id/adminTotalComplaints" />
+        <action
+            android:id="@+id/action_adminHomeFragment_to_adminAcceptedFragment"
+            app:destination="@id/adminAcceptedFragment" />
+        <action
+            android:id="@+id/action_adminHomeFragment_to_adminResolvedfragment"
+            app:destination="@id/adminResolvedfragment" />
+        <action
+            android:id="@+id/action_adminHomeFragment_to_adminRejectedFragment"
+            app:destination="@id/adminRejectedFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/adminTotalComplaints"
+        android:name="com.japnoor.anticorruption.admin.AdminTotalComplaints"
+        android:label="AdminTotalComplaints" />
+    <fragment
+        android:id="@+id/adminAcceptedFragment"
+        android:name="com.japnoor.anticorruption.admin.AdminAcceptedFragment"
+        android:label="AdminAcceptedFragment" />
+    <fragment
+        android:id="@+id/adminResolvedfragment"
+        android:name="com.japnoor.anticorruption.admin.AdminResolvedfragment"
+        android:label="AdminResolvedfragment" />
+    <fragment
+        android:id="@+id/adminRejectedFragment"
+        android:name="com.japnoor.anticorruption.admin.AdminRejectedFragment"
+        android:label="AdminRejectedFragment" />
+    <fragment
+        android:id="@+id/adminDemandFragment"
+        android:name="com.japnoor.anticorruptionadmin.AdminDemandFragment"
+        android:label="AdminDemandFragment" >
+        <action
+            android:id="@+id/action_adminDemandFragment_to_adminTotalDemand"
+            app:destination="@id/adminTotalDemand" />
+        <action
+            android:id="@+id/action_adminDemandFragment_to_adminAcceptedDemand"
+            app:destination="@id/adminAcceptedDemand" />
+        <action
+            android:id="@+id/action_adminDemandFragment_to_adminresolvedDemand"
+            app:destination="@id/adminresolvedDemand" />
+        <action
+            android:id="@+id/action_adminDemandFragment_to_adminRejectedDemand"
+            app:destination="@id/adminRejectedDemand" />
+    </fragment>
+    <fragment
+        android:id="@+id/adminTotalDemand"
+        android:name="com.japnoor.anticorruption.admin.Demand.AdminTotalDemand"
+        android:label="AdminTotalDemand" />
+    <fragment
+        android:id="@+id/adminAcceptedDemand"
+        android:name="com.japnoor.anticorruption.admin.Demand.AdminAcceptedDemand"
+        android:label="AdminAcceptedDemand" />
+    <fragment
+        android:id="@+id/adminRejectedDemand"
+        android:name="com.japnoor.anticorruption.admin.Demand.AdminRejectedDemand"
+        android:label="AdminRejectedDemand" />
+    <fragment
+        android:id="@+id/adminresolvedDemand"
+        android:name="com.japnoor.anticorruption.admin.Demand.AdminresolvedDemand"
+        android:label="AdminresolvedDemand" />
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="com.japnoor.anticorruptionadmin.UsersFragment"
+        android:label="UsersFragment" />
+</navigation>
