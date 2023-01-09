@@ -54,17 +54,33 @@
             android:id="@+id/LL2"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+            <TextView
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:textSize="20sp"
                 android:padding="10dp"
+                android:layout_weight="1"
                 android:text="Phone Number : "
                 android:textStyle="bold"
                 android:textColor="@color/black"
 
                 />
+
+                <ImageButton
+                    android:id="@+id/phnbtn"
+                    android:layout_marginEnd="10dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/upload_photo1"
+                    android:src="@drawable/ic_baseline_local_phone_24"
+                    />
+            </LinearLayout>
 
             <TextView
                 android:textColor="@color/black"
@@ -82,9 +98,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="vertical">
-
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+            <TextView
+                android:layout_width="60dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:padding="10dp"
@@ -94,7 +115,15 @@
                 android:textColor="@color/black"
 
                 />
-
+                <ImageButton
+                    android:id="@+id/emailbtn"
+                    android:layout_marginEnd="10dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/upload_photo1"
+                    android:src="@drawable/ic_baseline_email_241"
+                    />
+            </LinearLayout>
             <TextView
                 android:textColor="@color/black"
                 android:id="@+id/email"

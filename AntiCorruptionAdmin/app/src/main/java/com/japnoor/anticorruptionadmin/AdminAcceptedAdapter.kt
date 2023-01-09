@@ -41,6 +41,12 @@ class AdminAcceptedAdapter(
         holder.itemView.setOnClickListener {
             complaintClickedInterface.onComplaintsClicked(complaintsList[position])
         }
+        if(complaintsList[position].audioUrl.isNullOrEmpty()){
+            holder.binding.icon.setImageResource(R.drawable.videoitem)
+        }
+        else if(complaintsList[position].videoUrl.isNullOrEmpty()){
+            holder.binding.icon.setImageResource(R.drawable.audioitem)
+        }
     }
 
     override fun getItemCount(): Int {

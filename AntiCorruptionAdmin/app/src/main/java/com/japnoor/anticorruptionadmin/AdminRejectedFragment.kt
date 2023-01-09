@@ -10,18 +10,16 @@ import android.webkit.MimeTypeMap
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.japnoor.anticorruptionadmin.AdminHomeScreen
-import com.japnoor.anticorruptionadmin.ComplaintClickedInterface
-import com.japnoor.anticorruptionadmin.Complaints
-import com.japnoor.anticorruptionadmin.Users
+import com.japnoor.anticorruptionadmin.*
+import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
 import java.util.ArrayList
-import com.japnoor.anticorruptionadmin.R
 
 
 private const val ARG_PARAM1 = "param1"
@@ -71,7 +69,7 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
         storegeref = firebaseStorage.reference
         firebaseDatabase = FirebaseDatabase.getInstance()
         compref = firebaseDatabase.reference.child("Complaints")
-
+        binding.title.setText("Rejected Complaints")
 
         compref.addValueEventListener(object : ValueEventListener, ComplaintClickedInterface {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -84,7 +82,7 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                     }
                     adminRejectedAdapter =
                         AdminRejectedAdapter(adminHomeScreen, complaintsList, this)
-                    binding.recyclerView.layoutManager = LinearLayoutManager(adminHomeScreen)
+                    binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminRejectedAdapter
                 }
 
@@ -123,27 +121,18 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
 
                 dialogBind.audio.setOnClickListener {
                     val fileUri: Uri = complaints.audioUrl.toUri()
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(
-                        fileUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                            MimeTypeMap.getFileExtensionFromUrl(audioUrl)
-                        )
-                    )
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
+                    var intent=Intent(adminHomeScreen, AudioActivity::class.java)
+                    intent.putExtra("audio",fileUri.toString())
+                    adminHomeScreen.startActivity(intent)
 
-                    startActivity(intent)
                 }
+
                 dialogBind.video.setOnClickListener {
                     val fileUri: Uri = complaints.videoUrl.toUri()
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(
-                        fileUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                            MimeTypeMap.getFileExtensionFromUrl(videoUrl)
-                        )
-                    )
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
 
-                    startActivity(intent)
+                    var intent = Intent(adminHomeScreen, VideoActivity::class.java)
+                    intent.putExtra("video", fileUri.toString())
+                    adminHomeScreen.startActivity(intent)
                 }
 
                 dialog.show()

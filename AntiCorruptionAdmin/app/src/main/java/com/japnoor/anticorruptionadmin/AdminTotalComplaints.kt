@@ -2,26 +2,27 @@ package com.japnoor.anticorruption.admin
 
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
-import android.webkit.MimeTypeMap
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.japnoor.anticorruptionadmin.AdminHomeScreen
-import com.japnoor.anticorruptionadmin.ComplaintClickedInterface
-import com.japnoor.anticorruptionadmin.Complaints
-import com.japnoor.anticorruptionadmin.Users
+import com.japnoor.anticorruptionadmin.*
+import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
-import java.util.ArrayList
-import com.japnoor.anticorruptionadmin.R
-
 
 
 private const val ARG_PARAM1 = "param1"
@@ -72,7 +73,7 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
         storegeref = firebaseStorage.reference
         firebaseDatabase = FirebaseDatabase.getInstance()
         compref = firebaseDatabase.reference.child("Complaints")
-
+        binding.title.setText("All Complaints")
 
         compref.addValueEventListener(object : ValueEventListener, ComplaintClickedInterface {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -81,13 +82,11 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                     val complaint = eachComplaint.getValue(Complaints::class.java)
 
                     if (complaint != null) {
-
-
-                        complaintsList.add(complaint)
+                            complaintsList.add(complaint)
                     }
                     adminTotalComplaintsAdapter =
                         AdminTotalComplaintsAdapter(adminHomeScreen, complaintsList, this)
-                    binding.recyclerView.layoutManager = LinearLayoutManager(adminHomeScreen)
+                    binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminTotalComplaintsAdapter
                 }
 
@@ -119,10 +118,30 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
 
                 if (complaints.videoUrl.isNullOrEmpty())
                     dialogBind.video.visibility = View.GONE
+                dialogBind.phnbtn.setOnClickListener {
+                    if (ContextCompat.checkSelfPermission(adminHomeScreen,android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(adminHomeScreen, arrayOf(android.Manifest.permission.CALL_PHONE),
+                            1)
+
+                    } else {
+                        val intent =
+                            Intent(Intent.ACTION_CALL, Uri.parse("tel:" + complaints.userPhone))
+                        startActivity(intent)
+                    }
+                }
+
+                dialogBind.emailbtn.setOnClickListener {
+                        val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( complaints.userEmail ));
+                        intent.type = "message/rfc822"
+                        startActivity(Intent.createChooser(intent, "Select email"))
+                }
+
+
 
         if(complaints.status.equals("1")){
             dialogBind.fabAccepted.visibility=View.GONE
-            dialogBind.fabRejected.visibility=View.GONE
+            dialogBind.fabRejected.visibility=View.VISIBLE
             dialogBind.stamp.visibility=View.VISIBLE
             dialogBind.stamp.setImageResource(R.drawable.accpeted_stamp)
         }
@@ -161,29 +180,20 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                     dialog.dismiss()
                 }
 
-                    dialogBind.audio.setOnClickListener {
-                        val fileUri: Uri = complaints.audioUrl.toUri()
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.setDataAndType(
-                            fileUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                                MimeTypeMap.getFileExtensionFromUrl(audioUrl)
-                            )
-                        )
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
+                dialogBind.audio.setOnClickListener {
+                    val fileUri: Uri = complaints.audioUrl.toUri()
+                    var intent=Intent(adminHomeScreen, AudioActivity::class.java)
+                    intent.putExtra("audio",fileUri.toString())
+                    adminHomeScreen.startActivity(intent)
 
-                        startActivity(intent)
-                    }
+                }
+
                 dialogBind.video.setOnClickListener {
                     val fileUri: Uri = complaints.videoUrl.toUri()
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(
-                        fileUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                            MimeTypeMap.getFileExtensionFromUrl(videoUrl)
-                        )
-                    )
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
 
-                    startActivity(intent)
+                    var intent = Intent(adminHomeScreen, VideoActivity::class.java)
+                    intent.putExtra("video", fileUri.toString())
+                    adminHomeScreen.startActivity(intent)
                 }
 
                 dialog.show()

@@ -8,6 +8,7 @@
     import com.japnoor.anticorruptionadmin.AdminHomeScreen
     import com.japnoor.anticorruptionadmin.ComplaintClickedInterface
     import com.japnoor.anticorruptionadmin.Complaints
+    import com.japnoor.anticorruptionadmin.R
     import com.japnoor.anticorruptionadmin.databinding.ItemComlaintBinding
 
     class AdminTotalComplaintsAdapter(
@@ -28,7 +29,12 @@
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
+            if(complaintsList[position].audioUrl.isNullOrEmpty()){
+                holder.binding.icon.setImageResource(R.drawable.videoitem)
+            }
+            else if(complaintsList[position].videoUrl.isNullOrEmpty()){
+                holder.binding.icon.setImageResource(R.drawable.audioitem)
+            }
             holder.binding.tvAgainst.setText(complaintsList[position].complaintAgainst)
             holder.binding.tvSummary.setText(complaintsList[position].complaintSummary)
             holder.binding.Date.setText(complaintsList[position].complaintDate)

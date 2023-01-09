@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.firebase.database.*
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminHomeBinding
 
 private const val ARG_PARAM1 = "param1"
@@ -18,10 +19,6 @@ class AdminHomeFragment : Fragment() {
     private var param2: String? = null
     lateinit var binding : FragmentAdminHomeBinding
     lateinit var adminHomeScreen: AdminHomeScreen
-    var complaintCount=1
-    var complaintCountAcc=1
-    var complaintCountRes=1
-    var complaintCountRej=1
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +35,9 @@ class AdminHomeFragment : Fragment() {
     ): View? {
         binding= FragmentAdminHomeBinding.inflate(layoutInflater,container,false)
         adminHomeScreen=activity as AdminHomeScreen
+
+
+
 
 
         binding.cardTotal.setOnClickListener{

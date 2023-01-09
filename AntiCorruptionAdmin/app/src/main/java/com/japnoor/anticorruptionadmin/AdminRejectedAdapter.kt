@@ -30,8 +30,13 @@ class AdminRejectedAdapter(
         )
     }
 
-    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if(complaintsList[position].audioUrl.isNullOrEmpty()){
+            holder.binding.icon.setImageResource(R.drawable.videoitem)
+        }
+        else if(complaintsList[position].videoUrl.isNullOrEmpty()){
+            holder.binding.icon.setImageResource(R.drawable.audioitem)
+        }
         holder.binding.CardView.setCardBackgroundColor(Color.parseColor("#ff0000"))
         holder.binding.tvAgainst.setText(complaintsList[position].complaintAgainst)
         holder.binding.tvSummary.setText(complaintsList[position].complaintSummary)

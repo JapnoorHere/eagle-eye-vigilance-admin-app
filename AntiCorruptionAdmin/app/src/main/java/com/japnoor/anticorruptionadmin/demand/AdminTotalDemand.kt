@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -40,6 +41,7 @@ class AdminTotalDemand : Fragment(), DemandClick {
     lateinit var storageReference: StorageReference
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -58,7 +60,7 @@ class AdminTotalDemand : Fragment(), DemandClick {
         storageReference = storage.reference.child("images")
         adminHomeScreen = activity as AdminHomeScreen
         var binding = FragmentAdminTotalComplaintsBinding.inflate(layoutInflater, container, false)
-
+        binding.title.setText("All Letters")
         demRef.addValueEventListener(object : ValueEventListener, DemandClick {
             override fun onDataChange(snapshot: DataSnapshot) {
                 demandList.clear()
@@ -70,12 +72,10 @@ class AdminTotalDemand : Fragment(), DemandClick {
                     }
                     adminTotalDemandAdapter =
                         AdminTotalDemandAdapter(adminHomeScreen, demandList, this)
-                    binding.recyclerView.layoutManager = LinearLayoutManager(adminHomeScreen)
+                    binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminTotalDemandAdapter
                 }
-
             }
-
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
@@ -99,7 +99,7 @@ class AdminTotalDemand : Fragment(), DemandClick {
                 }
                 if (demandLetter.status == "1") {
                     dialogBind.fabAccepted.visibility = View.GONE
-                    dialogBind.fabRejected.visibility = View.GONE
+                    dialogBind.fabRejected.visibility = View.VISIBLE
                     dialogBind.stamp.visibility = View.VISIBLE
                     dialogBind.stamp.setImageResource(R.drawable.accpeted_stamp)
                 } else if (demandLetter.status == "2") {
@@ -151,8 +151,6 @@ class AdminTotalDemand : Fragment(), DemandClick {
 
         return binding.root
     }
-
-
     override fun onDemandClick(demandLetter: DemandLetter) {
 
 

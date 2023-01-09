@@ -53,28 +53,16 @@
                     app:tint="@color/white"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="23dp"
-                    android:layout_marginRight="30dp"
+                    android:layout_marginRight="10dp"
                     android:paddingStart="10dp"
                     />
 
-                <TextView
-                    android:id="@+id/tvNo1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="1"
-                    android:layout_gravity="center_horizontal"
-                    android:textStyle="bold"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="20dp"
-                    android:textSize="20dp"
-                    />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/white"
                     android:layout_marginTop="15dp"
-                    android:text="\nTotal Letters"
+                    android:text="\nAll Letters"
                     android:layout_gravity="center_horizontal"
                     android:textStyle="bold"
                     android:paddingTop="20dp"
@@ -100,22 +88,11 @@
                     app:tint="@color/white"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="23dp"
-                    android:layout_marginRight="30dp"
+                    android:layout_marginRight="10dp"
                     android:paddingStart="10dp"
                     />
 
-                <TextView
-                    android:id="@+id/tvNo2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="1"
-                    android:layout_gravity="center_horizontal"
-                    android:textStyle="bold"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="20dp"
-                    android:textSize="20dp"
-                    />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -154,23 +131,10 @@
                 app:tint="@color/white"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="23dp"
-                android:layout_marginRight="30dp"
+                android:layout_marginRight="10dp"
                 android:paddingStart="10dp"
                 />
 
-
-                <TextView
-                    android:id="@+id/tvNo3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="1"
-                    android:layout_gravity="center_horizontal"
-                    android:textStyle="bold"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="20dp"
-                    android:textSize="20dp"
-                    />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -199,22 +163,10 @@
                     app:tint="@color/white"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="23dp"
-                    android:layout_marginRight="30dp"
+                    android:layout_marginRight="10dp"
                     android:paddingStart="10dp"
                     />
 
-                <TextView
-                    android:id="@+id/tvNo4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="1"
-                    android:layout_gravity="center_horizontal"
-                    android:textStyle="bold"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="20dp"
-                    android:textSize="20dp"
-                    />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

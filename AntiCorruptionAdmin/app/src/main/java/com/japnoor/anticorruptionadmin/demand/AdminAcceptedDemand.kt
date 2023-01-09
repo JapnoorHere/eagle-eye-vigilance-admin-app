@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -61,6 +62,8 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
         adminHomeScreen = activity as AdminHomeScreen
         var binding = FragmentAdminTotalComplaintsBinding.inflate(layoutInflater, container, false)
 
+        binding.title.setText("Accepted Letters")
+
         demRef.addValueEventListener(object : ValueEventListener, DemandClick {
             override fun onDataChange(snapshot: DataSnapshot) {
                 demandList.clear()
@@ -72,7 +75,7 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                     }
                     adminAcceptedDemandAdapter =
                         AdminAcceptedDemandAdapter(adminHomeScreen, demandList, this)
-                    binding.recyclerView.layoutManager = LinearLayoutManager(adminHomeScreen)
+                    binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminAcceptedDemandAdapter
                 }
 
