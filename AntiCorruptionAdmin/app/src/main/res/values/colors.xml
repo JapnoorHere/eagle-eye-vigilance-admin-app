@@ -13,5 +13,10 @@
     <color name="accepted1">#7DFF9800</color>
     <color name="rejected">#ff0000</color>
     <color name="rejected1">#7DFF0000</color>
+    <color name="shimmer">#65ECE0</color>
+    <color name="shimmer_accepted">#BC7206</color>
+    <color name="shimmer_resolved">#75C4FF</color>
+    <color name="shimmer_rejected">#F17A7A</color>
+    <color name="shimmer_user">#031650</color>
 
 </resources>

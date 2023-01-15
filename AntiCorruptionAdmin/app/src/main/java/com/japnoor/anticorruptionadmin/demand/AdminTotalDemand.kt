@@ -61,6 +61,8 @@ class AdminTotalDemand : Fragment(), DemandClick {
         adminHomeScreen = activity as AdminHomeScreen
         var binding = FragmentAdminTotalComplaintsBinding.inflate(layoutInflater, container, false)
         binding.title.setText("All Letters")
+        binding.shimmer.startShimmer()
+
         demRef.addValueEventListener(object : ValueEventListener, DemandClick {
             override fun onDataChange(snapshot: DataSnapshot) {
                 demandList.clear()
@@ -74,7 +76,13 @@ class AdminTotalDemand : Fragment(), DemandClick {
                         AdminTotalDemandAdapter(adminHomeScreen, demandList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminTotalDemandAdapter
+                    binding.shimmer.visibility=View.GONE
+                    binding.shimmer.stopShimmer()
+                    binding.recyclerView.visibility=View.VISIBLE
                 }
+                binding.shimmer.visibility=View.GONE
+                binding.shimmer.stopShimmer()
+                binding.recyclerView.visibility=View.VISIBLE
             }
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
@@ -90,7 +98,6 @@ class AdminTotalDemand : Fragment(), DemandClick {
                 )
                 dialogBind.date.setText(demandLetter.demandDate)
                 dialogBind.name.setText(demandLetter.userName)
-                dialogBind.phoneno.setText(demandLetter.userPhone)
                 dialogBind.email.setText(demandLetter.userEmail)
                 dialogBind.tvSummary.setText(demandLetter.demandSubject)
                 dialogBind.tvDetails.setText(demandLetter.demandDetails)

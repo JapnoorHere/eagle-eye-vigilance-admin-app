@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Are you sure you want \n to delete this User ?"
+        android:text="Are you sure you want \n to block this User ?"
         android:textColor="@color/black"
         android:textSize="18sp"
         android:id="@+id/textmsg"

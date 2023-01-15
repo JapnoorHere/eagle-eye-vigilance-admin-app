@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="Users"
+            android:text="Blocked Users"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="25sp"
@@ -41,13 +41,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <include layout="@layout/shimmer_layout_user">
-                    </include><include layout="@layout/shimmer_layout_user">
-                </include><include layout="@layout/shimmer_layout_user">
-                </include><include layout="@layout/shimmer_layout_user">
-                </include><include layout="@layout/shimmer_layout_user">
-                </include><include layout="@layout/shimmer_layout_user">
-                </include><include layout="@layout/shimmer_layout_user">
+                    <include layout="@layout/shimmer_layout_block_user">
+                    </include><include layout="@layout/shimmer_layout_block_user">
+                </include><include layout="@layout/shimmer_layout_block_user">
+                </include><include layout="@layout/shimmer_layout_block_user">
+                </include><include layout="@layout/shimmer_layout_block_user">
+                </include><include layout="@layout/shimmer_layout_block_user">
+                </include><include layout="@layout/shimmer_layout_block_user">
                 </include>
                 </LinearLayout>
             </com.facebook.shimmer.ShimmerFrameLayout>

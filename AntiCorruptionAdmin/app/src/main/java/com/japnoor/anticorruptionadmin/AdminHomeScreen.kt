@@ -28,8 +28,8 @@ class AdminHomeScreen : AppCompatActivity() {
         binding = ActivityAdminHomeScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sharedPreferences=getSharedPreferences(resources.getString(R.string.app_name), MODE_PRIVATE)
-        editor=sharedPreferences.edit()
+            sharedPreferences=getSharedPreferences(resources.getString(R.string.app_name), MODE_PRIVATE)
+            editor=sharedPreferences.edit()
 
         navController = findNavController(R.id.navControllerAdmin)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -61,35 +61,37 @@ class AdminHomeScreen : AppCompatActivity() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menu?.add("Logout")
-
-        return super.onCreateOptionsMenu(menu)
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        if (item.title?.equals("Logout") == true) {
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Logout")
-            builder.setMessage("Are you sure you want to logout?")
-            builder.setPositiveButton("Yes") { dialog, which ->
-                editor.remove("value")
-                editor.commit()
-                var intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
-                Toast.makeText(this,"Logout Successful", Toast.LENGTH_LONG).show()
-            }
-            builder.setNegativeButton("No") { dialog, which ->
-                dialog.dismiss()
-            }
-            builder.show()
-
-        }
-        return super.onOptionsItemSelected(item)
-    }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menu?.add("Logout")
+//        menu?.add("Blocked Users")
+//
+//        return super.onCreateOptionsMenu(menu)
+//    }
+//
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//
+//        if (item.title?.equals("Logout") == true) {
+//            val builder = AlertDialog.Builder(this)
+//            builder.setTitle("Logout")
+//            builder.setMessage("Are you sure you want to logout?")
+//            builder.setPositiveButton("Yes") { dialog, which ->
+//                editor.remove("value")
+//                editor.commit()
+//                var intent = Intent(this, LoginActivity::class.java)
+//                startActivity(intent)
+//                finish()
+//                Toast.makeText(this,"Logout Successful", Toast.LENGTH_LONG).show()
+//            }
+//            builder.setNegativeButton("No") { dialog, which ->
+//                dialog.dismiss()
+//            }
+//            builder.show()
+//
+//        }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
 
 }
 

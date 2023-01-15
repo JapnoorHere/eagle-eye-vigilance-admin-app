@@ -22,6 +22,7 @@ import com.japnoor.anticorruption.admin.AdminTotalDemandAdapter
 import com.japnoor.anticorruptionadmin.*
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.DemandDialogBinding
+import com.japnoor.anticorruptionadmin.databinding.FragmentAdminResolvedfragmentBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
 
@@ -61,8 +62,10 @@ class AdminresolvedDemand : Fragment(), DemandClick {
         storage = FirebaseStorage.getInstance()
         storageReference = storage.reference.child("images")
         adminHomeScreen = activity as AdminHomeScreen
-        var binding = FragmentAdminTotalComplaintsBinding.inflate(layoutInflater, container, false)
+        var binding = FragmentAdminResolvedfragmentBinding.inflate(layoutInflater, container, false)
         binding.title.setText("Resolved Letters")
+        binding.shimmer.startShimmer()
+
         demRef.addValueEventListener(object : ValueEventListener, DemandClick {
             override fun onDataChange(snapshot: DataSnapshot) {
                 demandList.clear()
@@ -76,7 +79,13 @@ class AdminresolvedDemand : Fragment(), DemandClick {
                         AdminResolvedDemandAdapter(adminHomeScreen, demandList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminResolvedDemandAdapter
+                    binding.shimmer.visibility=View.GONE
+                    binding.shimmer.stopShimmer()
+                    binding.recyclerView.visibility=View.VISIBLE
                 }
+                binding.shimmer.visibility=View.GONE
+                binding.shimmer.stopShimmer()
+                binding.recyclerView.visibility=View.VISIBLE
 
             }
 
@@ -94,7 +103,6 @@ class AdminresolvedDemand : Fragment(), DemandClick {
                 )
                 dialogBind.date.setText(demandLetter.demandDate)
                 dialogBind.name.setText(demandLetter.userName)
-                dialogBind.phoneno.setText(demandLetter.userPhone)
                 dialogBind.email.setText(demandLetter.userEmail)
                 dialogBind.tvSummary.setText(demandLetter.demandSubject)
                 dialogBind.tvDetails.setText(demandLetter.demandDetails)

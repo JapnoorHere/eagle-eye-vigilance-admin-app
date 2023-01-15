@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                 binding.etPassword.error = "Enter Password"
             } else if(binding.etUsername.text.toString().equals(adminEmail)&&binding.etPassword.text.toString().equals(adminPass)){
                 editor.putString("value","1")
-                editor.commit()
+                editor.apply()
                 var intent=Intent(this,AdminHomeScreen::class.java)
                 startActivity(intent)
                 finish()

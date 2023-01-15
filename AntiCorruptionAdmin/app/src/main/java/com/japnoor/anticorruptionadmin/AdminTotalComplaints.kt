@@ -74,7 +74,7 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
         firebaseDatabase = FirebaseDatabase.getInstance()
         compref = firebaseDatabase.reference.child("Complaints")
         binding.title.setText("All Complaints")
-
+        binding.shimmer.startShimmer()
         compref.addValueEventListener(object : ValueEventListener, ComplaintClickedInterface {
             override fun onDataChange(snapshot: DataSnapshot) {
                 complaintsList.clear()
@@ -88,7 +88,13 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                         AdminTotalComplaintsAdapter(adminHomeScreen, complaintsList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminTotalComplaintsAdapter
+                    binding.shimmer.visibility=View.GONE
+                    binding.shimmer.stopShimmer()
+                    binding.recyclerView.visibility=View.VISIBLE
                 }
+                binding.shimmer.visibility=View.GONE
+                binding.shimmer.stopShimmer()
+                binding.recyclerView.visibility=View.VISIBLE
 
             }
 
@@ -105,7 +111,6 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
                 dialogBind.name.setText(complaints.userName)
-                dialogBind.phoneno.setText(complaints.userPhone)
                 dialogBind.email.setText(complaints.userEmail)
                 dialogBind.date.setText(complaints.complaintDate)
                 dialogBind.tvSummary.setText(complaints.complaintSummary)
@@ -118,17 +123,7 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
 
                 if (complaints.videoUrl.isNullOrEmpty())
                     dialogBind.video.visibility = View.GONE
-                dialogBind.phnbtn.setOnClickListener {
-                    if (ContextCompat.checkSelfPermission(adminHomeScreen,android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(adminHomeScreen, arrayOf(android.Manifest.permission.CALL_PHONE),
-                            1)
 
-                    } else {
-                        val intent =
-                            Intent(Intent.ACTION_CALL, Uri.parse("tel:" + complaints.userPhone))
-                        startActivity(intent)
-                    }
-                }
 
                 dialogBind.emailbtn.setOnClickListener {
                         val intent = Intent(Intent.ACTION_SEND)

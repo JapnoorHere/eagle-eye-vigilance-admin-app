@@ -18,6 +18,7 @@ import com.google.firebase.storage.StorageReference
 import com.japnoor.anticorruptionadmin.*
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
+import com.japnoor.anticorruptionadmin.databinding.FragmentAdminRejectedComplaintsBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
 import java.util.ArrayList
 
@@ -31,7 +32,7 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
     private var param2: String? = null
 
     lateinit var adminHomeScreen: AdminHomeScreen
-    lateinit var binding: FragmentAdminTotalComplaintsBinding
+    lateinit var binding: FragmentAdminRejectedComplaintsBinding
     var complaintsList: ArrayList<Complaints> = ArrayList()
     var usersList: ArrayList<Users> = ArrayList()
     lateinit var firebaseDatabase: FirebaseDatabase
@@ -64,12 +65,13 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentAdminTotalComplaintsBinding.inflate(layoutInflater, container, false)
+        binding = FragmentAdminRejectedComplaintsBinding.inflate(layoutInflater, container, false)
         firebaseStorage = FirebaseStorage.getInstance()
         storegeref = firebaseStorage.reference
         firebaseDatabase = FirebaseDatabase.getInstance()
         compref = firebaseDatabase.reference.child("Complaints")
         binding.title.setText("Rejected Complaints")
+        binding.shimmer.startShimmer()
 
         compref.addValueEventListener(object : ValueEventListener, ComplaintClickedInterface {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -84,7 +86,13 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                         AdminRejectedAdapter(adminHomeScreen, complaintsList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
                     binding.recyclerView.adapter = adminRejectedAdapter
+                    binding.shimmer.visibility=View.GONE
+                    binding.shimmer.stopShimmer()
+                    binding.recyclerView.visibility=View.VISIBLE
                 }
+                binding.shimmer.visibility=View.GONE
+                binding.shimmer.stopShimmer()
+                binding.recyclerView.visibility=View.VISIBLE
 
             }
 
@@ -102,7 +110,6 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                 dialogBind.stamp.visibility=View.VISIBLE
                 dialogBind.stamp.setImageResource(R.drawable.rejected_stamp)
                 dialogBind.name.setText(complaints.userName)
-                dialogBind.phoneno.setText(complaints.userPhone)
                 dialogBind.email.setText(complaints.userEmail)
                 dialogBind.date.setText(complaints.complaintDate)
                 dialogBind.tvSummary.setText(complaints.complaintSummary)

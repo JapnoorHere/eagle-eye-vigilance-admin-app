@@ -1,18 +1,21 @@
 package com.japnoor.anticorruptionadmin
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.ItemUserBinding
+import com.japnoor.anticorruptionadmin.databinding.ItemUserBlockedBinding
 
-class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<Users>, var clickInterface: UsersClick) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
-    class ViewHolder(var binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root) {
+
+class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<Users>, var clickInterface: UsersClick) : RecyclerView.Adapter<BlockedUserAdapter.ViewHolder>() {
+    class ViewHolder(var binding: ItemUserBlockedBinding) : RecyclerView.ViewHolder(binding.root) {
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return ViewHolder(ItemUserBlockedBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     }
 

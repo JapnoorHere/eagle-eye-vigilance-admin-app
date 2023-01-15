@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.japnoor.anticorruptionadmin.databinding.FragmentBlockedUsersBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentUsersBinding
 import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
@@ -22,11 +24,11 @@ import com.japnoor.anticorruptionadmin.demand.DemandLetter
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class UsersFragment : Fragment(),UsersClick {
+class BlockedUsersFragment : Fragment(),UsersClick {
     private var param1: String? = null
     private var param2: String? = null
     var arrayList: ArrayList<Users> = ArrayList()
-    lateinit var adapter: UserListAdapter
+    lateinit var adapter: BlockedUserAdapter
     lateinit var database: FirebaseDatabase
     lateinit var userref: DatabaseReference
     lateinit var compref: DatabaseReference
@@ -49,7 +51,7 @@ class UsersFragment : Fragment(),UsersClick {
     ): View? {
         adminHomeScreen = activity as AdminHomeScreen
 
-        var binding = FragmentUsersBinding.inflate(layoutInflater, container, false)
+        var binding = FragmentBlockedUsersBinding.inflate(layoutInflater, container, false)
         database = FirebaseDatabase.getInstance()
         userref = database.reference.child("Users")
         compref = database.reference.child("Complaints")
@@ -64,10 +66,10 @@ class UsersFragment : Fragment(),UsersClick {
                 arrayList.clear()
                 for (eachUser in snapshot.children) {
                     val user = eachUser.getValue(Users::class.java)
-                    if (user != null && !(user.userStatus.equals("1"))) {
+                    if (user != null && user.userStatus.equals("1")) {
                         arrayList.add(user)
                     }
-                    adapter = UserListAdapter(adminHomeScreen, arrayList, this)
+                    adapter = BlockedUserAdapter(adminHomeScreen, arrayList, this)
                     binding.recyclerView.layoutManager = LinearLayoutManager(adminHomeScreen)
                     binding.recyclerView.adapter = adapter
                     binding.shimmer.stopShimmer()
@@ -92,6 +94,9 @@ class UsersFragment : Fragment(),UsersClick {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.WRAP_CONTENT
                 )
+                dialogBinding.fabAdd2.setImageResource(R.drawable.ic_baseline_thumb_up_24)
+                dialogBinding.fabAdd1.setBackgroundResource(R.drawable.yes_btn_red)
+                dialogBinding.fabAdd2.setBackgroundResource(R.drawable.yes_btn_red)
                 var complaintCount = 0
                 var demandCount = 0
                 compref.addValueEventListener(object : ValueEventListener {
@@ -100,7 +105,7 @@ class UsersFragment : Fragment(),UsersClick {
                             var comp = eachComplaint.getValue(Complaints::class.java)
                             if (comp != null && users.userId.equals(comp.userId)) {
                                 complaintCount += 1
-                                println("Count0     -> " + complaintCount.toString())
+                                println("Count0 -> " + complaintCount.toString())
                                 dialogBinding.complaints.setText(complaintCount.toString())
                             }
                         }
@@ -146,15 +151,17 @@ class UsersFragment : Fragment(),UsersClick {
                     var bottomSheet = BottomSheetDialog(requireContext())
                     bottomSheet.setContentView(R.layout.dialog_delete_users)
                     bottomSheet.show()
+                    var tvmsg=bottomSheet.findViewById<TextView>(R.id.textmsg)
                     var tvYes = bottomSheet.findViewById<TextView>(R.id.tvYes)
                     var tvNo = bottomSheet.findViewById<TextView>(R.id.tvNo)
-
+                    tvYes?.setBackgroundResource(R.drawable.yes_btn_red)
+                    tvmsg?.setText("Are you sure you want \n to unblock this User ?")
                     tvNo?.setOnClickListener {
                         bottomSheet.dismiss()
                     }
                     tvYes?.setOnClickListener {
-                        userref.child(users.userId).child("userStatus").setValue("1")
-                        adminHomeScreen.navController.navigate(R.id.usersFragment)
+                        userref.child(users.userId).child("userStatus").setValue("")
+                        adminHomeScreen.navController.navigate(R.id.blockedUsersFragment)
                         bottomSheet.dismiss()
                         dialog.dismiss()
                     }
@@ -170,7 +177,6 @@ class UsersFragment : Fragment(),UsersClick {
         TODO("Not yet implemented")
     }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu?.add("Blocked Users")
         menu?.add("Logout")
 
 
@@ -198,11 +204,8 @@ class UsersFragment : Fragment(),UsersClick {
             builder.show()
 
         }
-          else if (item.title?.equals("Blocked Users") == true) {
-                  adminHomeScreen.navController.navigate(R.id.blockedUsersFragment)
-        }
 
-            return super.onOptionsItemSelected(item)
+        return super.onOptionsItemSelected(item)
     }
 
 }

@@ -30,8 +30,9 @@
             <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:layout_width="match_parent"
                 android:id="@+id/BottomNav"
+                android:layout_margin="10dp"
                 android:layout_height="wrap_content"
-                android:background="#4169e1"
+                android:background="@drawable/yes_btn"
                 app:menu="@menu/admin_menu"
                 app:itemTextColor="@color/white"
                 app:itemIconTint="@color/white"
