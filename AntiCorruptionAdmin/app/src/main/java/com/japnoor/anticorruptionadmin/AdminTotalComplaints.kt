@@ -1,14 +1,17 @@
 package com.japnoor.anticorruption.admin
 
+import Data1
+import Notification1
 import android.app.Dialog
+import android.app.Notification
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.provider.ContactsContract
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -17,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.japnoor.anticorruptionadmin.*
@@ -73,8 +77,16 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
         storegeref = firebaseStorage.reference
         firebaseDatabase = FirebaseDatabase.getInstance()
         compref = firebaseDatabase.reference.child("Complaints")
-        binding.title.setText("All Complaints")
         binding.shimmer.startShimmer()
+        binding.search.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.search.right - binding.search.compoundDrawables[2].bounds.width())) {
+                    binding.search.text.clear()
+                    return@setOnTouchListener true
+                }
+            }
+            return@setOnTouchListener false
+        }
         compref.addValueEventListener(object : ValueEventListener, ComplaintClickedInterface {
             override fun onDataChange(snapshot: DataSnapshot) {
                 complaintsList.clear()
@@ -91,6 +103,31 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                     binding.shimmer.visibility=View.GONE
                     binding.shimmer.stopShimmer()
                     binding.recyclerView.visibility=View.VISIBLE
+                    binding.search.addTextChangedListener(object : TextWatcher{
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            var filteredList = ArrayList<Complaints>()
+                            for (item in complaintsList){
+                                if(item.complaintAgainst.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintNumber.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintDate.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintTime.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.userName.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.userEmail.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintDistrict.toLowerCase().contains(s.toString().toLowerCase())
+                                )
+                                    filteredList.add(item)
+                            }
+                            adminTotalComplaintsAdapter.FilteredList(filteredList)
+                        }
+
+                    })
                 }
                 binding.shimmer.visibility=View.GONE
                 binding.shimmer.stopShimmer()
@@ -163,6 +200,18 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
 
                 dialogBind.fabAccepted.setOnClickListener {
                     compref.child(complaints.complaintId).child("status").setValue("1")
+
+                        // Update the status of the complaint in the database
+                        val complaintRef = firebaseDatabase.getReference(complaints.complaintId)
+                        complaintRef.child("status").setValue(status)
+
+//                        // Send a notification to the user's app via FCM
+//                        val fcm = FirebaseMessaging.getInstance()
+//                        var notification=Notification1("Complaint Status Update","Your complaint has been accepted")
+//                    var data=Data1(complaints.complaintId,notification)
+//                        val payload = FCM.MessagePayload(data)
+//                        val target = FCM.MessageTarget(token = userToken) // userToken is the FCM token for the user's app
+//                        fcm.send(target, payload)
                     dialog.dismiss()
                 }
                 dialogBind.fabResolved.setOnClickListener {

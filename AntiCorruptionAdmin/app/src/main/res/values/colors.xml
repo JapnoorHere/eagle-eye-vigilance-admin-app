@@ -18,5 +18,6 @@
     <color name="shimmer_resolved">#75C4FF</color>
     <color name="shimmer_rejected">#F17A7A</color>
     <color name="shimmer_user">#031650</color>
+    <color name="blue">#4169e1</color>
 
 </resources>

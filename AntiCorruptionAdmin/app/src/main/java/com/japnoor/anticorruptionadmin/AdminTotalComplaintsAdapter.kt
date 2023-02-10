@@ -29,17 +29,32 @@
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            if(complaintsList[position].audioUrl.isNullOrEmpty()){
-                holder.binding.icon.setImageResource(R.drawable.videoitem)
-            }
-            else if(complaintsList[position].videoUrl.isNullOrEmpty()){
-                holder.binding.icon.setImageResource(R.drawable.audioitem)
+
+            when(complaintsList[position].status){
+                "1"->{
+                    holder.binding.upline.setBackgroundResource(R.drawable.acceptedback)
+                    holder.binding.downline.setBackgroundResource(R.drawable.acceptedback)
+                }
+                "2"->{
+                    holder.binding.upline.setBackgroundResource(R.drawable.resolvedback)
+                    holder.binding.downline.setBackgroundResource(R.drawable.resolvedback)
+                }
+                "3"->{
+                    holder.binding.upline.setBackgroundResource(R.drawable.rejectedback)
+                    holder.binding.downline.setBackgroundResource(R.drawable.rejectedback)
+                }
+                else->{
+                    holder.binding.upline.setBackgroundResource(R.drawable.purpleback)
+                    holder.binding.downline.setBackgroundResource(R.drawable.purpleback)
+                }
+
             }
             holder.binding.tvAgainst.setText(complaintsList[position].complaintAgainst)
             holder.binding.tvSummary.setText(complaintsList[position].complaintSummary)
+            holder.binding.compNumber.setText(complaintsList[position].complaintNumber)
+            holder.binding.time.setText(complaintsList[position].complaintTime)
             holder.binding.Date.setText(complaintsList[position].complaintDate)
             holder.binding.userName.setText(complaintsList[position].userName)
-            holder.binding.userName.visibility = View.VISIBLE
             holder.itemView.setOnClickListener {
                    complaintClickedInterface.onComplaintsClicked(complaintsList[position])
             }
@@ -47,5 +62,10 @@
 
         override fun getItemCount(): Int {
             return complaintsList.size
+        }
+
+        fun FilteredList(filteredList: ArrayList<Complaints>) {
+            complaintsList=filteredList
+            notifyDataSetChanged()
         }
     }

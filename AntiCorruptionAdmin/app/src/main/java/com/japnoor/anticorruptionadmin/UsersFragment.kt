@@ -139,10 +139,8 @@ class UsersFragment : Fragment(),UsersClick {
                 dialogBinding.name.setText(users.name)
                 dialogBinding.email.setText(users.email)
                 println("Count-> " + complaintCount.toString())
-                dialogBinding.fabAdd1.setOnClickListener {
-                    dialog.dismiss()
-                }
-                dialogBinding.fabAdd2.setOnClickListener {
+
+                dialogBinding.block.setOnClickListener {
                     var bottomSheet = BottomSheetDialog(requireContext())
                     bottomSheet.setContentView(R.layout.dialog_delete_users)
                     bottomSheet.show()
@@ -152,6 +150,7 @@ class UsersFragment : Fragment(),UsersClick {
                     tvNo?.setOnClickListener {
                         bottomSheet.dismiss()
                     }
+                    tvYes?.setBackgroundResource(R.drawable.yes_btn_red)
                     tvYes?.setOnClickListener {
                         userref.child(users.userId).child("userStatus").setValue("1")
                         adminHomeScreen.navController.navigate(R.id.usersFragment)

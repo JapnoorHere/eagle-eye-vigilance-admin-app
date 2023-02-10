@@ -39,7 +39,7 @@
                 android:layout_height="120dp"
                 android:layout_weight="1"
                 android:id="@+id/cardTotal"
-                app:cardBackgroundColor="#009688"
+                app:cardBackgroundColor="#896FFF"
                 app:cardCornerRadius="10dp"
 
                 android:layout_margin="5dp">

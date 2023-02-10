@@ -94,9 +94,7 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.WRAP_CONTENT
                 )
-                dialogBinding.fabAdd2.setImageResource(R.drawable.ic_baseline_thumb_up_24)
-                dialogBinding.fabAdd1.setBackgroundResource(R.drawable.yes_btn_red)
-                dialogBinding.fabAdd2.setBackgroundResource(R.drawable.yes_btn_red)
+
                 var complaintCount = 0
                 var demandCount = 0
                 compref.addValueEventListener(object : ValueEventListener {
@@ -144,10 +142,8 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 dialogBinding.name.setText(users.name)
                 dialogBinding.email.setText(users.email)
                 println("Count-> " + complaintCount.toString())
-                dialogBinding.fabAdd1.setOnClickListener {
-                    dialog.dismiss()
-                }
-                dialogBinding.fabAdd2.setOnClickListener {
+                dialogBinding.block.setText("unblock this user")
+                dialogBinding.block.setOnClickListener {
                     var bottomSheet = BottomSheetDialog(requireContext())
                     bottomSheet.setContentView(R.layout.dialog_delete_users)
                     bottomSheet.show()

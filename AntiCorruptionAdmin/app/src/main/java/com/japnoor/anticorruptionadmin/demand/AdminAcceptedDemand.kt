@@ -4,11 +4,10 @@ import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -63,9 +62,16 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
         adminHomeScreen = activity as AdminHomeScreen
         var binding = FragmentAdminAcceptedComplaintsBinding.inflate(layoutInflater, container, false)
         binding.shimmer.startShimmer()
-
-        binding.title.setText("Accepted Letters")
-
+        binding.search.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.search.right - binding.search.compoundDrawables[2].bounds.width())) {
+                    binding.search.text.clear()
+                    return@setOnTouchListener true
+                }
+            }
+            return@setOnTouchListener false
+        }
+        binding.search.setHint("Search Demand Letters")
         demRef.addValueEventListener(object : ValueEventListener, DemandClick {
             override fun onDataChange(snapshot: DataSnapshot) {
                 demandList.clear()
@@ -82,6 +88,31 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                     binding.shimmer.visibility=View.GONE
                     binding.shimmer.stopShimmer()
                     binding.recyclerView.visibility=View.VISIBLE
+                    binding.search.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            var filteredList = java.util.ArrayList<DemandLetter>()
+                            for (item in demandList){
+                                if(item.demandSubject.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.demandNumber.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.demandDate.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.demandTime.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.userName.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.userEmail.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.demandDistrict.toLowerCase().contains(s.toString().toLowerCase())
+                                )
+                                    filteredList.add(item)
+                            }
+                            adminAcceptedDemandAdapter.FilteredList(filteredList)
+                        }
+
+                    })
                 }
                 binding.shimmer.visibility=View.GONE
                 binding.shimmer.stopShimmer()

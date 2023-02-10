@@ -5,6 +5,8 @@ import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import android.webkit.MimeTypeMap
 import androidx.activity.result.ActivityResultLauncher
@@ -70,9 +72,16 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
         storegeref = firebaseStorage.reference
         firebaseDatabase = FirebaseDatabase.getInstance()
         compref = firebaseDatabase.reference.child("Complaints")
-        binding.title.setText("Rejected Complaints")
         binding.shimmer.startShimmer()
-
+        binding.search.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.search.right - binding.search.compoundDrawables[2].bounds.width())) {
+                    binding.search.text.clear()
+                    return@setOnTouchListener true
+                }
+            }
+            return@setOnTouchListener false
+        }
         compref.addValueEventListener(object : ValueEventListener, ComplaintClickedInterface {
             override fun onDataChange(snapshot: DataSnapshot) {
                 complaintsList.clear()
@@ -89,6 +98,31 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                     binding.shimmer.visibility=View.GONE
                     binding.shimmer.stopShimmer()
                     binding.recyclerView.visibility=View.VISIBLE
+                    binding.search.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            var filteredList = ArrayList<Complaints>()
+                            for (item in complaintsList){
+                                if(item.complaintAgainst.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintNumber.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintDate.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintTime.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.userName.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.userEmail.toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.complaintDistrict.toLowerCase().contains(s.toString().toLowerCase())
+                                )
+                                    filteredList.add(item)
+                            }
+                            adminRejectedAdapter.FilteredList(filteredList)
+                        }
+
+                    })
                 }
                 binding.shimmer.visibility=View.GONE
                 binding.shimmer.stopShimmer()
