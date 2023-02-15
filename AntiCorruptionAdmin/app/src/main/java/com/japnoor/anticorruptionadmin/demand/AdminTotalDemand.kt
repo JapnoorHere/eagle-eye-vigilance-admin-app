@@ -78,7 +78,8 @@ class AdminTotalDemand : Fragment(), DemandClick {
                 for (eachDemand in snapshot.children) {
                     var demand = eachDemand.getValue(DemandLetter::class.java)
 
-                    if (demand != null) {
+                    if (demand != null && !(demand.status.equals("1")) && !(demand.status.equals("2"))
+                        && !(demand.status.equals("3"))) {
                         demandList.add(demand)
                     }
                     adminTotalDemandAdapter =

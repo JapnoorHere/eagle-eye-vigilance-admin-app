@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -14,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.ktx.Firebase
+import com.google.protobuf.Value
 import com.japnoor.anticorruptionadmin.databinding.FragmentUsersBinding
 import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
@@ -55,7 +58,7 @@ class UsersFragment : Fragment(),UsersClick {
         compref = database.reference.child("Complaints")
         demref = database.reference.child("Demand Letter")
         setHasOptionsMenu(true)
-        sharedPreferences = adminHomeScreen!!.getSharedPreferences(resources.getString(R.string.app_name), Context.MODE_PRIVATE)
+        sharedPreferences = adminHomeScreen.getSharedPreferences(resources.getString(R.string.app_name), Context.MODE_PRIVATE)
         editor=sharedPreferences.edit()
         binding.shimmer.startShimmer()
 
@@ -64,7 +67,7 @@ class UsersFragment : Fragment(),UsersClick {
                 arrayList.clear()
                 for (eachUser in snapshot.children) {
                     val user = eachUser.getValue(Users::class.java)
-                    if (user != null && !(user.userStatus.equals("1"))) {
+                    if (user != null && user.userStatus=="0") {
                         arrayList.add(user)
                     }
                     adapter = UserListAdapter(adminHomeScreen, arrayList, this)
@@ -147,12 +150,37 @@ class UsersFragment : Fragment(),UsersClick {
                     var tvYes = bottomSheet.findViewById<TextView>(R.id.tvYes)
                     var tvNo = bottomSheet.findViewById<TextView>(R.id.tvNo)
 
+
+//                    val sevenDaysInMillisecond = 7 * 24 * 60 * 60 * 1000
+//                    val sevenDaysInMillisecond = 60000
+//                    val resetTime = currentTime + sevenDaysInMillisecond
+//
+//
+//                    userref.addValueEventListener(object  : ValueEventListener{
+//                        override fun onDataChange(snapshot: DataSnapshot) {
+//                           for(each in snapshot.children){
+//                              var userdetail=each.getValue(Users::class.java)
+//                               if(userdetail!=null && userdetail.userId.equals(users.userId) && userdetail.userStatus!="0"){
+//                                   if (calendar.timeInMillis >= resetTime) {
+//                                       userref.child(users.userId).child("userStatus").setValue("0")
+//                                   }
+//                               }
+//                           }
+//                        }
+//
+//                        override fun onCancelled(error: DatabaseError) {
+//
+//                        }
+//
+//                    })
+
                     tvNo?.setOnClickListener {
                         bottomSheet.dismiss()
                     }
                     tvYes?.setBackgroundResource(R.drawable.yes_btn_red)
                     tvYes?.setOnClickListener {
-                        userref.child(users.userId).child("userStatus").setValue("1")
+                        val currentTime = System.currentTimeMillis()
+                        userref.child(users.userId).child("userStatus").setValue(currentTime.toString())
                         adminHomeScreen.navController.navigate(R.id.usersFragment)
                         bottomSheet.dismiss()
                         dialog.dismiss()

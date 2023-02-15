@@ -93,7 +93,8 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                 for (eachComplaint in snapshot.children) {
                     val complaint = eachComplaint.getValue(Complaints::class.java)
 
-                    if (complaint != null) {
+                    if (complaint != null && !(complaint.status.equals("1")) && !(complaint.status.equals("2"))
+                            && !(complaint.status.equals("3"))) {
                             complaintsList.add(complaint)
                     }
                     adminTotalComplaintsAdapter =

@@ -38,7 +38,7 @@
                 android:layout_marginStart="3dp"
                 android:layout_marginTop="35dp"
                 android:layout_marginEnd="-3dp"
-                android:src="@drawable/bwm" />
+                android:src="@drawable/fnll" />
 
 
         </RelativeLayout>
@@ -83,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:hint="Email"
                         android:digits="qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM 1234567890 .@_"
-                        android:text="anticorruptionpunjab75@gmail.com"
+                        android:text="bpunjabvigilance@gmail.com"
                         android:inputType="textEmailAddress"
                         />
                 </com.google.android.material.textfield.TextInputLayout>

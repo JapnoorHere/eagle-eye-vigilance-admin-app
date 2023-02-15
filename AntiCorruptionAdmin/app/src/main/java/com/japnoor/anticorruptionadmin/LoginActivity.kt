@@ -29,7 +29,7 @@ class LoginActivity : AppCompatActivity() {
         sharedPreferences=getSharedPreferences(resources.getString(R.string.app_name), MODE_PRIVATE)
         editor=sharedPreferences.edit()
 
-        adminEmail="anticorruptionpunjab75@gmail.com"
+        adminEmail="bpunjabvigilance@gmail.com"
         adminPass="111111"
         binding.btnLogin.setOnClickListener {
             //validations

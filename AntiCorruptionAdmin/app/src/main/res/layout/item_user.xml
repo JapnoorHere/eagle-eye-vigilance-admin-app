@@ -33,7 +33,7 @@
     android:layout_height="wrap_content"
     android:text="User"
         android:id="@+id/name"
-    android:textSize="20sp"
+    android:textSize="15sp"
     android:drawableStart="@drawable/ic_baseline_person_outline_24"
     android:textColor="@color/white"
     />
@@ -42,7 +42,7 @@
             android:layout_marginTop="5dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:textSize="20sp"
+    android:textSize="15sp"
     android:drawableStart="@drawable/ic_baseline_email_241"
     android:textColor="@color/white"
     />

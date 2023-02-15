@@ -66,7 +66,7 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 arrayList.clear()
                 for (eachUser in snapshot.children) {
                     val user = eachUser.getValue(Users::class.java)
-                    if (user != null && user.userStatus.equals("1")) {
+                    if (user != null && user.userStatus!="0") {
                         arrayList.add(user)
                     }
                     adapter = BlockedUserAdapter(adminHomeScreen, arrayList, this)
@@ -156,7 +156,7 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                         bottomSheet.dismiss()
                     }
                     tvYes?.setOnClickListener {
-                        userref.child(users.userId).child("userStatus").setValue("")
+                        userref.child(users.userId).child("userStatus").setValue("0")
                         adminHomeScreen.navController.navigate(R.id.blockedUsersFragment)
                         bottomSheet.dismiss()
                         dialog.dismiss()
