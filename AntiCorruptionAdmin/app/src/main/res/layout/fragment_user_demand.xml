@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".UserComplaintFragment">
+        <EditText
+            android:drawableEnd="@drawable/ic_baseline_clear_24"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/search"
+            android:hint="Search Demand Letter"
+            android:drawableStart="@drawable/ic_baseline_search_24"
+            android:layout_marginTop="10dp"
+            android:padding="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:drawablePadding="6dp"
+            android:background="@drawable/search_bg"
+            />
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/shimmer_layout_complaint_user">
+                </include><include layout="@layout/shimmer_layout_demand">
+            </include><include layout="@layout/shimmer_layout_demand">
+            </include><include layout="@layout/shimmer_layout_demand">
+            </include><include layout="@layout/shimmer_layout_demand">
+            </include><include layout="@layout/shimmer_layout_demand">
+            </include><include layout="@layout/shimmer_layout_demand">
+            </include>
+            </LinearLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
+        <!-- TODO: Update blank fragment layout -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            />
+
+    </LinearLayout>
+</layout>

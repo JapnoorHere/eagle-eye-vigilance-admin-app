@@ -82,6 +82,7 @@ class AdminTotalDemand : Fragment(), DemandClick {
                         && !(demand.status.equals("3"))) {
                         demandList.add(demand)
                     }
+                    demandList.reverse()
                     adminTotalDemandAdapter =
                         AdminTotalDemandAdapter(adminHomeScreen, demandList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
@@ -137,7 +138,21 @@ class AdminTotalDemand : Fragment(), DemandClick {
                 dialogBind.tvSummary.setText(demandLetter.demandSubject)
                 dialogBind.tvDetails.setText(demandLetter.demandDetails)
                 dialogBind.tvDistrict.setText(demandLetter.demandDistrict)
-                dialogBind.image.setOnClickListener {
+                dialogBind.oldemail.setText(demandLetter.userOldEmail)
+
+
+                dialogBind.emailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userEmail ))
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
+
+                dialogBind.oldemailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userOldEmail ))
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
                 }
                 if (demandLetter.status == "1") {
                     dialogBind.fabAccepted.visibility = View.GONE

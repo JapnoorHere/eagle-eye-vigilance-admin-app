@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -60,7 +62,15 @@ class BlockedUsersFragment : Fragment(),UsersClick {
         sharedPreferences = adminHomeScreen!!.getSharedPreferences(resources.getString(R.string.app_name), Context.MODE_PRIVATE)
         editor=sharedPreferences.edit()
         binding.shimmer.startShimmer()
-
+        binding.search.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.search.right - binding.search.compoundDrawables[2].bounds.width())) {
+                    binding.search.text.clear()
+                    return@setOnTouchListener true
+                }
+            }
+            return@setOnTouchListener false
+        }
         userref.addValueEventListener(object : ValueEventListener, UsersClick {
             override fun onDataChange(snapshot: DataSnapshot) {
                 arrayList.clear()
@@ -69,12 +79,31 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                     if (user != null && user.userStatus!="0") {
                         arrayList.add(user)
                     }
+                    arrayList.reverse()
                     adapter = BlockedUserAdapter(adminHomeScreen, arrayList, this)
                     binding.recyclerView.layoutManager = LinearLayoutManager(adminHomeScreen)
                     binding.recyclerView.adapter = adapter
                     binding.shimmer.stopShimmer()
                     binding.shimmer.visibility = View.GONE
                     binding.recyclerView.visibility = View.VISIBLE
+                    binding.search.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                        override fun afterTextChanged(s: Editable?) {
+                            var filteredList = ArrayList<Users>()
+                            for (item in arrayList) {
+                                if (item.name.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.email.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                )
+                                    filteredList.add(item)
+                            }
+                            adapter.FilteredList(filteredList)
+                        }
+
+                    })
                 }
                 binding.shimmer.stopShimmer()
                 binding.shimmer.visibility = View.GONE
@@ -97,6 +126,18 @@ class BlockedUsersFragment : Fragment(),UsersClick {
 
                 var complaintCount = 0
                 var demandCount = 0
+                dialogBinding.cardComplaint.setOnClickListener {
+                    dialog.dismiss()
+                    var bundle=Bundle()
+                    bundle.putString("uid",users.userId.toString())
+                    adminHomeScreen.navController.navigate(R.id.userComplaintFragment,bundle)
+                }
+                dialogBinding.cardDemand.setOnClickListener {
+                    dialog.dismiss()
+                    var bundle=Bundle()
+                    bundle.putString("uid",users.userId.toString())
+                    adminHomeScreen.navController.navigate(R.id.userDemandFragment,bundle)
+                }
                 compref.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (eachComplaint in snapshot.children) {
@@ -141,6 +182,34 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 }
                 dialogBinding.name.setText(users.name)
                 dialogBinding.email.setText(users.email)
+                dialogBinding.birthdate.setText(users.birthdate)
+                dialogBinding.date.setText(users.userDate)
+                val currentTime = System.currentTimeMillis()
+                //                    val sevenDaysInMillisecond = 7 * 24 * 60 * 60 * 1000
+                val sevenDaysInMillisecond : Long = 604800000
+                var timecheck:Long=0
+                userref.addValueEventListener(object  : ValueEventListener{
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for(each in snapshot.children){
+                            var userdetail=each.getValue(Users::class.java)
+                            if(userdetail!=null && userdetail.userId.equals(users.userId) && userdetail.userStatus!="0"){
+                                timecheck=userdetail.userStatus.toLong() + sevenDaysInMillisecond
+                                println("Time->" + timecheck)
+
+                            }
+                        }
+
+                        var timeleft=timecheck-currentTime
+                        val days = timeleft / (1000 * 60 * 60 * 24)
+                        val hours = (timeleft / (1000 * 60 * 60)) % 24
+                        dialogBinding.unblocktime.text ="Unblocks in : " + days.toString() + "d " + hours.toString() +"h"
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+
+                    }
+
+                })
                 println("Count-> " + complaintCount.toString())
                 dialogBinding.block.setText("unblock this user")
                 dialogBinding.block.setOnClickListener {

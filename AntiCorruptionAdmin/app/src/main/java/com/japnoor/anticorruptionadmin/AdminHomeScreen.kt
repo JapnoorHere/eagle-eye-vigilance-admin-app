@@ -20,14 +20,24 @@ class AdminHomeScreen : AppCompatActivity() {
     lateinit var binding: ActivityAdminHomeScreenBinding
     lateinit var navController: NavController
     lateinit var sharedPreferences: SharedPreferences
+    lateinit var sharedPreferencesDetails: SharedPreferences
     lateinit var editor: Editor
+    lateinit var editorDetails: Editor
+    var adminEmail: String = ""
+    var adminPass: String = ""
+    var adminPasscode: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferencesDetails=getSharedPreferences("Details", MODE_PRIVATE)
+        editorDetails=sharedPreferencesDetails.edit()
         binding = ActivityAdminHomeScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        adminEmail=sharedPreferencesDetails.getString("adminEmail","").toString()
+        adminPass=sharedPreferencesDetails.getString("adminPass","").toString()
+        adminPasscode=sharedPreferencesDetails.getString("adminPasscode","").toString()
             sharedPreferences=getSharedPreferences(resources.getString(R.string.app_name), MODE_PRIVATE)
             editor=sharedPreferences.edit()
 

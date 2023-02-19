@@ -48,25 +48,37 @@
                     </LinearLayout>
 
 
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:orientation="vertical">
-
-                        <TextView
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:padding="10dp"
-                            android:textSize="20sp"
-                            android:text="Email : "
-                            android:textStyle="bold"
-                            android:textColor="@color/black"
+                            android:orientation="horizontal"
+                            >
+                            <TextView
+                                android:layout_width="60dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:maxLines="1"
+                                android:padding="10dp"
+                                android:textSize="20sp"
+                                android:text="Email : "
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
 
-                            />
-
+                                />
+                            <ImageButton
+                                android:id="@+id/emailbtn"
+                                android:layout_marginEnd="10dp"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/upload_photo1"
+                                android:src="@drawable/ic_baseline_email_241"
+                                />
+                        </LinearLayout>
                         <TextView
                             android:textColor="@color/black"
                             android:id="@+id/email"
@@ -76,7 +88,47 @@
                             android:paddingBottom="10dp"
 
                             />
+                    </LinearLayout><LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+                        <TextView
+                            android:layout_width="60dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:padding="10dp"
+                            android:textSize="20sp"
+                            android:text="Demand registered through : "
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+
+                            />
+                        <ImageButton
+                            android:id="@+id/oldemailbtn"
+                            android:layout_marginEnd="10dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:background="@drawable/upload_photo1"
+                            android:src="@drawable/ic_baseline_email_241"
+                            />
                     </LinearLayout>
+                    <TextView
+                        android:textColor="@color/black"
+                        android:id="@+id/oldemail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:paddingBottom="10dp"
+
+                        />
+                </LinearLayout>
                 </LinearLayout>
 
 

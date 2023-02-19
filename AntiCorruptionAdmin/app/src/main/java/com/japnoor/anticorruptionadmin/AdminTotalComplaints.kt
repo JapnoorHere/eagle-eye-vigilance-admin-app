@@ -97,6 +97,7 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                             && !(complaint.status.equals("3"))) {
                             complaintsList.add(complaint)
                     }
+                    complaintsList.reverse()
                     adminTotalComplaintsAdapter =
                         AdminTotalComplaintsAdapter(adminHomeScreen, complaintsList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
@@ -155,12 +156,8 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                 dialogBind.tvAgainst.setText(complaints.complaintAgainst)
                 dialogBind.tvDetails.setText(complaints.complaintDetails)
                 dialogBind.tvDistrict.setText(complaints.complaintDistrict)
+                dialogBind.oldemail.setText(complaints.userOldEmail)
 
-                if (complaints.audioUrl.isNullOrEmpty())
-                    dialogBind.audio.visibility = View.GONE
-
-                if (complaints.videoUrl.isNullOrEmpty())
-                    dialogBind.video.visibility = View.GONE
 
 
                 dialogBind.emailbtn.setOnClickListener {
@@ -170,9 +167,22 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                         startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
+                dialogBind.oldemailbtn.setOnClickListener {
+                        val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( complaints.userOldEmail ));
+                        intent.type = "message/rfc822"
+                        startActivity(Intent.createChooser(intent, "Select email"))
+                }
+
+                if (complaints.audioUrl.isNullOrEmpty())
+                    dialogBind.audio.visibility = View.GONE
+
+                if (complaints.videoUrl.isNullOrEmpty())
+                    dialogBind.video.visibility = View.GONE
 
 
-        if(complaints.status.equals("1")){
+
+                if(complaints.status.equals("1")){
             dialogBind.fabAccepted.visibility=View.GONE
             dialogBind.fabRejected.visibility=View.VISIBLE
             dialogBind.stamp.visibility=View.VISIBLE
@@ -201,10 +211,9 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
 
                 dialogBind.fabAccepted.setOnClickListener {
                     compref.child(complaints.complaintId).child("status").setValue("1")
-
                         // Update the status of the complaint in the database
-                        val complaintRef = firebaseDatabase.getReference(complaints.complaintId)
-                        complaintRef.child("status").setValue(status)
+//                        val complaintRef = firebaseDatabase.getReference(complaints.complaintId)
+//                        complaintRef.child("status").setValue(status)
 
 //                        // Send a notification to the user's app via FCM
 //                        val fcm = FirebaseMessaging.getInstance()
@@ -221,7 +230,6 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
                 }
                 dialogBind.fabRejected.setOnClickListener {
                     compref.child(complaints.complaintId).child("status").setValue("3")
-
                     dialog.dismiss()
                 }
 
@@ -235,7 +243,6 @@ class AdminTotalComplaints : Fragment(),ComplaintClickedInterface {
 
                 dialogBind.video.setOnClickListener {
                     val fileUri: Uri = complaints.videoUrl.toUri()
-
                     var intent = Intent(adminHomeScreen, VideoActivity::class.java)
                     intent.putExtra("video", fileUri.toString())
                     adminHomeScreen.startActivity(intent)

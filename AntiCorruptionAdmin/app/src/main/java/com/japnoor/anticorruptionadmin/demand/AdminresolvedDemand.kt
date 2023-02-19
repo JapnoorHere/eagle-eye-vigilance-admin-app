@@ -85,6 +85,7 @@ class AdminresolvedDemand : Fragment(), DemandClick {
                     if (demand != null && demand.status.equals("2")) {
                         demandList.add(demand)
                     }
+                    demandList.reverse()
                     adminResolvedDemandAdapter =
                         AdminResolvedDemandAdapter(adminHomeScreen, demandList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
@@ -142,6 +143,22 @@ class AdminresolvedDemand : Fragment(), DemandClick {
                 dialogBind.tvSummary.setText(demandLetter.demandSubject)
                 dialogBind.tvDetails.setText(demandLetter.demandDetails)
                 dialogBind.tvDistrict.setText(demandLetter.demandDistrict)
+                dialogBind.oldemail.setText(demandLetter.userOldEmail)
+
+
+                dialogBind.emailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userEmail ))
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
+
+                dialogBind.oldemailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userOldEmail ))
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
                 dialogBind.image.setOnClickListener {
                 }
                 dialogBind.fabAccepted.visibility=View.GONE

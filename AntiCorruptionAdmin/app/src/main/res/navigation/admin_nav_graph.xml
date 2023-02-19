@@ -78,4 +78,12 @@
         android:id="@+id/blockedUsersFragment"
         android:name="com.japnoor.anticorruptionadmin.BlockedUsersFragment"
         android:label="BlockedUsersFragment" />
+    <fragment
+        android:id="@+id/userComplaintFragment"
+        android:name="com.japnoor.anticorruptionadmin.UserComplaintFragment"
+        android:label="UserComplaintFragment" />
+    <fragment
+        android:id="@+id/userDemandFragment"
+        android:name="com.japnoor.anticorruptionadmin.demand.UserDemandFragment"
+        android:label="UserDemandFragment" />
 </navigation>

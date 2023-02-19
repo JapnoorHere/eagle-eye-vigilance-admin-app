@@ -91,6 +91,7 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                     if (complaint != null && complaint.status=="3") {
                         complaintsList.add(complaint)
                     }
+                    complaintsList.reverse()
                     adminRejectedAdapter =
                         AdminRejectedAdapter(adminHomeScreen, complaintsList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
@@ -150,6 +151,21 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                 dialogBind.tvAgainst.setText(complaints.complaintAgainst)
                 dialogBind.tvDetails.setText(complaints.complaintDetails)
                 dialogBind.tvDistrict.setText(complaints.complaintDistrict)
+                dialogBind.oldemail.setText(complaints.userOldEmail)
+
+                dialogBind.emailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( complaints.userEmail ));
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
+
+                dialogBind.oldemailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( complaints.userOldEmail ));
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
                 if (complaints.audioUrl.isNullOrEmpty())
                     dialogBind.audio.visibility = View.GONE
 

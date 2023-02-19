@@ -1,55 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:layout_margin="5dp"
-    app:cardCornerRadius="15dp"
-    android:id="@+id/card"
-    app:cardBackgroundColor="#4169e1"
-    >
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/Profile"
-            android:layout_width="80dp"
-            android:layout_gravity="center"
-            android:layout_height="60dp"
-            android:src="@drawable/profile"
-            />
+    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_margin="5dp"
+        app:cardBackgroundColor="@color/blue"
+        app:cardCornerRadius="15dp">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp"
-                >
-    <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="User"
-        android:id="@+id/name"
-    android:textSize="15sp"
-    android:drawableStart="@drawable/ic_baseline_person_outline_24"
-    android:textColor="@color/white"
-    />
-        <TextView
-            android:id="@+id/email"
-            android:layout_marginTop="5dp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textSize="15sp"
-    android:drawableStart="@drawable/ic_baseline_email_241"
-    android:textColor="@color/white"
-    />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/Profile"
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:src="@drawable/profile" />
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_baseline_person_outline_24"
+                        android:text="User"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:textSize="15sp" />
 
 
 
-    </LinearLayout>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:drawableStart="@drawable/ic_baseline_email_241"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+
+            </LinearLayout>
+            <TextView
+                android:padding="5dp"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:textColor="@color/white"
+                android:id="@+id/date"
+                android:layout_height="wrap_content"
+                android:text="12/4/11"
+                />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </layout>

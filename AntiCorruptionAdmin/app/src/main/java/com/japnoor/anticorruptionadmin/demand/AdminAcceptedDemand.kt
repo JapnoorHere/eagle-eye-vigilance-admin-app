@@ -81,6 +81,7 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                     if (demand != null && demand.status.equals("1")) {
                         demandList.add(demand)
                     }
+                    demandList.reverse()
                     adminAcceptedDemandAdapter =
                         AdminAcceptedDemandAdapter(adminHomeScreen, demandList, this)
                     binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
@@ -132,6 +133,8 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
+
+
                 dialogBind.date.setText(demandLetter.demandDate)
                 dialogBind.name.setText(demandLetter.userName)
                 dialogBind.email.setText(demandLetter.userEmail)
@@ -143,7 +146,22 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                 dialogBind.fabAccepted.visibility=View.GONE
                 dialogBind.stamp.visibility=View.VISIBLE
                 dialogBind.stamp.setImageResource(R.drawable.accpeted_stamp)
+                dialogBind.oldemail.setText(demandLetter.userOldEmail)
 
+
+                dialogBind.emailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userEmail ))
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
+
+                dialogBind.oldemailbtn.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userOldEmail ))
+                    intent.type = "message/rfc822"
+                    startActivity(Intent.createChooser(intent, "Select email"))
+                }
                 dialogBind.fabResolved.setOnClickListener {
                     demRef.child(demandLetter.demandId).child("status").setValue("2")
                     dialog.dismiss()

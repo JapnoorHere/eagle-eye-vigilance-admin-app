@@ -3,7 +3,9 @@ package com.japnoor.anticorruption.admin
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.core.Context
 import com.japnoor.anticorruptionadmin.AdminHomeScreen
 import com.japnoor.anticorruptionadmin.DemandClick
@@ -49,6 +51,13 @@ class AdminTotalDemandAdapter (var context: AdminHomeScreen,var demandletter: Ar
         holder.binding.userName.setText(demandletter[position].userName)
         holder.itemView.setOnClickListener{
             demandClick.onDemandClick(demandletter[position])
+        }
+        holder.itemView.setOnLongClickListener{
+            var bottomSheet = BottomSheetDialog(context)
+            bottomSheet.setContentView(R.layout.complaint_menu_hold)
+            var chat=bottomSheet.findViewById<CardView>(R.id.chat)
+            bottomSheet.show()
+            true
         }
     }
 

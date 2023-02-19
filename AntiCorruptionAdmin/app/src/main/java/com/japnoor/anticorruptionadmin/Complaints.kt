@@ -13,6 +13,7 @@ data class Complaints(var complaintSummary : String="",
                       var videoUrl : String="",
                       var userName :  String="",
                       var userEmail : String="",
+                      var userOldEmail : String="",
                       var status : String="",
                       var complaintNumber : String="",
                       var complaintTime : String="")

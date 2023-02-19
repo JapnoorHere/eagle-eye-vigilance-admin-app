@@ -23,6 +23,7 @@ class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<U
 
         holder.binding.name.setText(userList[position].name)
         holder.binding.email.setText(userList[position].email)
+        holder.binding.date.setText(userList[position].userDate)
         holder.itemView.setOnClickListener{
             clickInterface.onUsersClick(userList[position])
         }
@@ -40,5 +41,10 @@ class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<U
 
     override fun getItemCount(): Int {
         return userList.size
+    }
+    fun FilteredList(filteredList: ArrayList<Users>) {
+        userList=filteredList
+        notifyDataSetChanged()
+
     }
 }

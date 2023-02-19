@@ -8,43 +8,28 @@ import android.os.Handler
 import android.os.Looper
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import com.google.firebase.database.*
+import com.google.protobuf.Value
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.ActivitySplashScreennBinding
 
 class SplashScreenActivity : AppCompatActivity() {
-    lateinit var sharedPreferences: SharedPreferences
-    lateinit var editor: Editor
-    lateinit var adminRef : DatabaseReference
 
+    var adminPasscode : String=""
     lateinit var binding : ActivitySplashScreennBinding
+    lateinit var navController: NavController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding= ActivitySplashScreennBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        var downAnim = AnimationUtils.loadAnimation(this, R.anim.down_anim)
-        sharedPreferences=getSharedPreferences(resources.getString(R.string.app_name), MODE_PRIVATE)
-        editor=sharedPreferences.edit()
-         adminRef=FirebaseDatabase.getInstance().reference.child("Admin")
 
-        binding.ivMAimg.animation = downAnim
+        navController=findNavController(R.id.navController)
 
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            if(sharedPreferences.contains("value")){
-             var intent=Intent(this,AdminHomeScreen::class.java)
-             startActivity(intent)
-             finish()
-            }
-            else {
-                var intent = Intent(this@SplashScreenActivity, LoginActivity::class.java)
-
-                startActivity(intent)
-                finish()
-            }
-
-        }, 2500)
 
     }
 }

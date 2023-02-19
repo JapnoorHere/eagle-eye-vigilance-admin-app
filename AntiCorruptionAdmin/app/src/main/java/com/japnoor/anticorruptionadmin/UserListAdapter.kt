@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.ItemUserBinding
+import com.japnoor.anticorruptionadmin.demand.DemandLetter
 
 class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<Users>, var clickInterface: UsersClick) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
     class ViewHolder(var binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -20,6 +21,7 @@ class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<User
 
         holder.binding.name.setText(userList[position].name)
         holder.binding.email.setText(userList[position].email)
+        holder.binding.date.setText(userList[position].userDate)
         holder.itemView.setOnClickListener{
             clickInterface.onUsersClick(userList[position])
         }
@@ -38,4 +40,11 @@ class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<User
     override fun getItemCount(): Int {
         return userList.size
     }
+
+    fun FilteredList(filteredList: ArrayList<Users>) {
+        userList=filteredList
+        notifyDataSetChanged()
+
+    }
+
 }
