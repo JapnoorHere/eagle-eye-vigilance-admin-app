@@ -11,3 +11,7 @@ interface DemandClick {
 interface UsersClick {
     fun onUsersClick(users: Users)
     }
+
+interface AnnouncementsClick {
+    fun onUsersClick(announcements: Announcements)
+    }

@@ -144,8 +144,8 @@ class AdminresolvedDemand : Fragment(), DemandClick {
                 dialogBind.tvDetails.setText(demandLetter.demandDetails)
                 dialogBind.tvDistrict.setText(demandLetter.demandDistrict)
                 dialogBind.oldemail.setText(demandLetter.userOldEmail)
-
-
+                dialogBind.actionstaken.setText(demandLetter.statusDescription)
+                dialogBind.unionn.setText(demandLetter.unionName)
                 dialogBind.emailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userEmail ))

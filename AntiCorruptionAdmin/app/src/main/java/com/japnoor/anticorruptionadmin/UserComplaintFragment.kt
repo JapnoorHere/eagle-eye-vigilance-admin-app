@@ -2,6 +2,8 @@ package com.japnoor.anticorruptionadmin
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentUserComplaintBinding
+import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -140,7 +143,9 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                 dialogBind.name.setText(complaints.userName)
                 dialogBind.email.setText(complaints.userEmail)
                 dialogBind.date.setText(complaints.complaintDate)
-                dialogBind.tvSummary.setText(complaints.complaintSummary)
+                dialogBind.tvDept.setText(complaints.complaintDept)
+                dialogBind.tvLoc.setText(complaints.complaintLoc)
+                dialogBind.tvCategory.setText(complaints.complaintCategory)
                 dialogBind.tvAgainst.setText(complaints.complaintAgainst)
                 dialogBind.tvDetails.setText(complaints.complaintDetails)
                 dialogBind.tvDistrict.setText(complaints.complaintDistrict)
@@ -201,6 +206,32 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                 }
 
                 dialogBind.fabAccepted.setOnClickListener {
+                    if (complaints.audioUrl.isNullOrEmpty()) {
+                        var sendEmail = SendEmail()
+                        sendEmail.sendComplaint(
+                            complaints.userEmail,
+                            complaints.userName,
+                            complaints.complaintNumber,
+                            complaints.complaintAgainst,
+                            complaints.complaintDetails,
+                            complaints.complaintDept,
+                            complaints.complaintCategory,
+                            complaints.complaintLoc,
+                            complaints.complaintDistrict,"No",complaints.videoUrl)
+                    }
+                    else if(complaints.videoUrl.isNullOrEmpty()){
+                        var sendEmail = SendEmail()
+                        sendEmail.sendComplaint(
+                            complaints.userEmail,
+                            complaints.userName,
+                            complaints.complaintNumber,
+                            complaints.complaintAgainst,
+                            complaints.complaintDetails,
+                            complaints.complaintDept,
+                            complaints.complaintCategory,
+                            complaints.complaintLoc,
+                            complaints.complaintDistrict,complaints.audioUrl,"No")
+                    }
                     compref.child(complaints.complaintId).child("status").setValue("1")
 
                     // Update the status of the complaint in the database
@@ -218,8 +249,31 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                     dialog.dismiss()
                 }
                 dialogBind.fabResolved.setOnClickListener {
-                    compref.child(complaints.complaintId).child("status").setValue("2")
-                    dialog.dismiss()
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            compref.child(complaints.complaintId).child("status").setValue("2")
+                            compref.child(complaints.complaintId).child("statusDescription")
+                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .addOnCompleteListener {
+                                    descriptionDialog.dismiss()
+                                }
+                            compref.child(complaints.complaintId).child("status").setValue("2")
+                            dialog.dismiss()
+                        }
+                    }
                 }
                 dialogBind.fabRejected.setOnClickListener {
                     compref.child(complaints.complaintId).child("status").setValue("3")

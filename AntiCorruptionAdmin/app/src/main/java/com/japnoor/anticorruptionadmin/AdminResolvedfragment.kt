@@ -148,7 +148,10 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                 dialogBind.name.setText(complaints.userName)
                 dialogBind.email.setText(complaints.userEmail)
                 dialogBind.date.setText(complaints.complaintDate)
-                dialogBind.tvSummary.setText(complaints.complaintSummary)
+                dialogBind.tvDept.setText(complaints.complaintDept)
+                dialogBind.actionstaken.setText(complaints.statusDescription)
+                dialogBind.tvLoc.setText(complaints.complaintLoc)
+                dialogBind.tvCategory.setText(complaints.complaintCategory)
                 dialogBind.tvAgainst.setText(complaints.complaintAgainst)
                 dialogBind.tvDetails.setText(complaints.complaintDetails)
                 dialogBind.tvDistrict.setText(complaints.complaintDistrict)
@@ -171,6 +174,9 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                 if (complaints.audioUrl.isNullOrEmpty())
                     dialogBind.audio.visibility = View.GONE
 
+                if (complaints.imageUrl.isNullOrEmpty())
+                    dialogBind.image.visibility = View.GONE
+
                 if (complaints.videoUrl.isNullOrEmpty())
                     dialogBind.video.visibility = View.GONE
 
@@ -183,7 +189,16 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                     var intent=Intent(adminHomeScreen, AudioActivity::class.java)
                     intent.putExtra("audio",fileUri.toString())
                     adminHomeScreen.startActivity(intent)
+                }
 
+                dialogBind.image.setOnClickListener {
+                    val fileUri: Uri = complaints.imageUrl.toUri()
+
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(fileUri, "image/*")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
+
+                    startActivity(intent)
                 }
 
                 dialogBind.video.setOnClickListener {

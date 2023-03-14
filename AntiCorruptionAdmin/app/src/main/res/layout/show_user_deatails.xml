@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
         android:id="@+id/Framelayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,28 +18,30 @@
             android:orientation="vertical"
             android:paddingStart="10dp"
             android:paddingEnd="10dp">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_marginTop="20dp"
-    android:layout_height="match_parent">
-            <ImageView
-                android:id="@+id/Profile"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/profile" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/unblocktime"
-                android:textSize="15sp"
-                android:textAlignment="center"
-                android:layout_gravity="center"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                />
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp">
 
-</LinearLayout>
+                <ImageView
+                    android:id="@+id/Profile"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/profile" />
+
+                <TextView
+                    android:id="@+id/unblocktime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,6 +67,7 @@
                         />
 
                     <TextView
+
                         android:id="@+id/name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -76,6 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:id="@+id/cardEmail"
                 app:cardBackgroundColor="#B8B4B4"
                 app:cardCornerRadius="10dp">
 
@@ -97,6 +103,7 @@
                         />
 
                     <TextView
+                        android:drawableEnd="@drawable/ic_baseline_email_24"
                         android:id="@+id/email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -121,6 +128,7 @@
                     android:orientation="vertical">
 
                     <TextView
+
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="1"
@@ -145,12 +153,11 @@
             </androidx.cardview.widget.CardView>
 
 
-
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardComplaint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:id="@+id/cardComplaint"
                 app:cardBackgroundColor="#B8B4B4"
                 app:cardCornerRadius="10dp">
 
@@ -175,10 +182,10 @@
                         android:id="@+id/complaints"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:drawableRight="@drawable/ic_baseline_assignment_24"
                         android:paddingStart="10dp"
                         android:paddingBottom="10dp"
                         android:text="0"
-                        android:drawableRight="@drawable/ic_baseline_assignment_24"
                         android:textColor="@color/black"
 
                         />
@@ -186,10 +193,10 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardDemand"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:id="@+id/cardDemand"
                 app:cardBackgroundColor="#B8B4B4"
                 app:cardCornerRadius="10dp">
 
@@ -211,10 +218,10 @@
                         />
 
                     <TextView
-                        android:drawableRight="@drawable/ic_baseline_edit_note_24"
                         android:id="@+id/demand"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:drawableRight="@drawable/ic_baseline_edit_note_24"
                         android:paddingStart="10dp"
                         android:paddingBottom="10dp"
                         android:text="0"
@@ -223,6 +230,7 @@
                         />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -258,6 +266,7 @@
                         />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
             <Button
                 android:id="@+id/block"
                 android:layout_width="match_parent"
@@ -272,4 +281,5 @@
 
 
     </FrameLayout>
+</ScrollView>
 </layout>

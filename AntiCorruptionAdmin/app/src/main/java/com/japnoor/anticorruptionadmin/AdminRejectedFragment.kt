@@ -3,6 +3,7 @@ package com.japnoor.anticorruption.admin
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -134,6 +135,7 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
+            @SuppressLint("ResourceAsColor")
             override fun onComplaintsClicked(complaints: Complaints) {
                 var dialog = Dialog(requireContext())
                 var dialogBind = EditComplaintDialogBinding.inflate(layoutInflater)
@@ -142,12 +144,18 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
+                dialogBind.actionstaken.setText(complaints.statusDescription)
+                dialogBind.actionstaken.setTextColor(Color.RED)
+                dialogBind.actionstakenHeading.setTextColor(Color.RED)
+                dialogBind.actionLayout.setBackgroundDrawable(resources.getDrawable(R.drawable.rejectedcompbgtextstroke))
                 dialogBind.stamp.visibility=View.VISIBLE
                 dialogBind.stamp.setImageResource(R.drawable.rejected_stamp)
                 dialogBind.name.setText(complaints.userName)
                 dialogBind.email.setText(complaints.userEmail)
                 dialogBind.date.setText(complaints.complaintDate)
-                dialogBind.tvSummary.setText(complaints.complaintSummary)
+                dialogBind.tvDept.setText(complaints.complaintDept)
+                dialogBind.tvLoc.setText(complaints.complaintLoc)
+                dialogBind.tvCategory.setText(complaints.complaintCategory)
                 dialogBind.tvAgainst.setText(complaints.complaintAgainst)
                 dialogBind.tvDetails.setText(complaints.complaintDetails)
                 dialogBind.tvDistrict.setText(complaints.complaintDistrict)
@@ -169,6 +177,9 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                 if (complaints.audioUrl.isNullOrEmpty())
                     dialogBind.audio.visibility = View.GONE
 
+                if (complaints.imageUrl.isNullOrEmpty())
+                    dialogBind.image.visibility = View.GONE
+
                 if (complaints.videoUrl.isNullOrEmpty())
                     dialogBind.video.visibility = View.GONE
 
@@ -183,7 +194,15 @@ class AdminRejectedFragment : Fragment(),ComplaintClickedInterface {
                     adminHomeScreen.startActivity(intent)
 
                 }
+                dialogBind.image.setOnClickListener {
+                    val fileUri: Uri = complaints.imageUrl.toUri()
 
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(fileUri, "image/*")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
+
+                    startActivity(intent)
+                }
                 dialogBind.video.setOnClickListener {
                     val fileUri: Uri = complaints.videoUrl.toUri()
 

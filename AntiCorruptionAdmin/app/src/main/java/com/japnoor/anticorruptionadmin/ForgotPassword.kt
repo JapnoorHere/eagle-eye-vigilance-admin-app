@@ -34,6 +34,9 @@ class ForgotPassword : AppCompatActivity() {
                 binding.etEmail.error="Enter Email"
                 binding.etEmail.requestFocus()
             }
+            else if(!(binding.etEmail.text.toString().equals("eagleeyevigilance@gmail.com"))){
+                Toast.makeText(this, "Email Does Not Exists", Toast.LENGTH_SHORT).show()
+            }
             else {
                 val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                 val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo

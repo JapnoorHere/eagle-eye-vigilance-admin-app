@@ -4,6 +4,8 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.icu.util.Calendar
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
@@ -32,7 +34,7 @@ import com.japnoor.anticorruptionadmin.demand.DemandLetter
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class UsersFragment : Fragment(),UsersClick {
+class UsersFragment : Fragment(), UsersClick {
     private var param1: String? = null
     private var param2: String? = null
     var arrayList: ArrayList<Users> = ArrayList()
@@ -42,7 +44,7 @@ class UsersFragment : Fragment(),UsersClick {
     lateinit var compref: DatabaseReference
     lateinit var demref: DatabaseReference
     lateinit var sharedPreferencesDetails: SharedPreferences
-    lateinit var editorDetails : SharedPreferences.Editor
+    lateinit var editorDetails: SharedPreferences.Editor
     lateinit var adminHomeScreen: AdminHomeScreen
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
@@ -60,16 +62,20 @@ class UsersFragment : Fragment(),UsersClick {
         savedInstanceState: Bundle?
     ): View? {
         adminHomeScreen = activity as AdminHomeScreen
-        sharedPreferencesDetails=adminHomeScreen.getSharedPreferences("Details", AppCompatActivity.MODE_PRIVATE)
-        editorDetails=sharedPreferencesDetails.edit()
+        sharedPreferencesDetails =
+            adminHomeScreen.getSharedPreferences("Details", AppCompatActivity.MODE_PRIVATE)
+        editorDetails = sharedPreferencesDetails.edit()
         var binding = FragmentUsersBinding.inflate(layoutInflater, container, false)
         database = FirebaseDatabase.getInstance()
         userref = database.reference.child("Users")
         compref = database.reference.child("Complaints")
         demref = database.reference.child("Demand Letter")
         setHasOptionsMenu(true)
-        sharedPreferences = adminHomeScreen.getSharedPreferences(resources.getString(R.string.app_name), Context.MODE_PRIVATE)
-        editor=sharedPreferences.edit()
+        sharedPreferences = adminHomeScreen.getSharedPreferences(
+            resources.getString(R.string.app_name),
+            Context.MODE_PRIVATE
+        )
+        editor = sharedPreferences.edit()
         binding.shimmer.startShimmer()
         binding.search.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
@@ -85,7 +91,7 @@ class UsersFragment : Fragment(),UsersClick {
                 arrayList.clear()
                 for (eachUser in snapshot.children) {
                     val user = eachUser.getValue(Users::class.java)
-                    if (user != null && user.userStatus=="0") {
+                    if (user != null && user.userStatus == "0") {
                         arrayList.add(user)
                     }
                     arrayList.reverse()
@@ -96,9 +102,22 @@ class UsersFragment : Fragment(),UsersClick {
                     binding.shimmer.visibility = View.GONE
                     binding.recyclerView.visibility = View.VISIBLE
                     binding.search.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
+                        }
 
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+                        }
+
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = ArrayList<Users>()
                             for (item in arrayList) {
@@ -111,7 +130,6 @@ class UsersFragment : Fragment(),UsersClick {
                             }
                             adapter.FilteredList(filteredList)
                         }
-
                     })
                 }
                 binding.shimmer.stopShimmer()
@@ -155,7 +173,7 @@ class UsersFragment : Fragment(),UsersClick {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (eachdem in snapshot.children) {
                             var dem = eachdem.getValue(DemandLetter::class.java)
-                            if (dem != null && users.userId.equals(dem.userId) ) {
+                            if (dem != null && users.userId.equals(dem.userId)) {
                                 demandCount += 1
                                 dialogBinding.demand.setText(demandCount.toString())
                             }
@@ -179,17 +197,49 @@ class UsersFragment : Fragment(),UsersClick {
 
 
                 dialogBinding.cardComplaint.setOnClickListener {
-                    dialog.dismiss()
-                    var bundle=Bundle()
-                    bundle.putString("uid",users.userId.toString())
-                    adminHomeScreen.navController.navigate(R.id.userComplaintFragment,bundle)
+                    val connectivityManager =
+                        adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                    val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                    if (isConnected) {
+                        dialog.dismiss()
+                        var bundle = Bundle()
+                        bundle.putString("uid", users.userId.toString())
+                        adminHomeScreen.navController.navigate(R.id.userComplaintFragment, bundle)
+                    } else {
+                        Toast.makeText(
+                            adminHomeScreen,
+                            "Check your internet connection please",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                    }
                 }
 
                 dialogBinding.cardDemand.setOnClickListener {
-                    dialog.dismiss()
-                    var bundle=Bundle()
-                    bundle.putString("uid",users.userId.toString())
-                    adminHomeScreen.navController.navigate(R.id.userDemandFragment,bundle)
+                    val connectivityManager =
+                        adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                    val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                    if (isConnected) {
+                        dialog.dismiss()
+                        var bundle = Bundle()
+                        bundle.putString("uid", users.userId.toString())
+                        adminHomeScreen.navController.navigate(R.id.userDemandFragment, bundle)
+                    } else {
+                        Toast.makeText(
+                            adminHomeScreen,
+                            "Check your internet connection please",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                    }
+                }
+                dialogBinding.cardEmail.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf(users.email))
+                    intent.type = "message/rfc822"
+                    adminHomeScreen.startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
                 dialogBinding.name.setText(users.name)
@@ -199,46 +249,35 @@ class UsersFragment : Fragment(),UsersClick {
                 println("Count-> " + complaintCount.toString())
 
                 dialogBinding.block.setOnClickListener {
-                    var bottomSheet = BottomSheetDialog(requireContext())
-                    bottomSheet.setContentView(R.layout.dialog_delete_users)
-                    bottomSheet.show()
-                    var tvYes = bottomSheet.findViewById<TextView>(R.id.tvYes)
-                    var tvNo = bottomSheet.findViewById<TextView>(R.id.tvNo)
+                    val connectivityManager =
+                        adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                    val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                    if (isConnected) {
+                        var bottomSheet = BottomSheetDialog(requireContext())
+                        bottomSheet.setContentView(R.layout.dialog_delete_users)
+                        bottomSheet.show()
+                        var tvYes = bottomSheet.findViewById<TextView>(R.id.tvYes)
+                        var tvNo = bottomSheet.findViewById<TextView>(R.id.tvNo)
 
-
-//                    val sevenDaysInMillisecond = 7 * 24 * 60 * 60 * 1000
-//                    val sevenDaysInMillisecond = 60000
-//                    val resetTime = currentTime + sevenDaysInMillisecond
-//
-//
-//                    userref.addValueEventListener(object  : ValueEventListener{
-//                        override fun onDataChange(snapshot: DataSnapshot) {
-//                           for(each in snapshot.children){
-//                              var userdetail=each.getValue(Users::class.java)
-//                               if(userdetail!=null && userdetail.userId.equals(users.userId) && userdetail.userStatus!="0"){
-//                                   if (calendar.timeInMillis >= resetTime) {
-//                                       userref.child(users.userId).child("userStatus").setValue("0")
-//                                   }
-//                               }
-//                           }
-//                        }
-//
-//                        override fun onCancelled(error: DatabaseError) {
-//
-//                        }
-//
-//                    })
-
-                    tvNo?.setOnClickListener {
-                        bottomSheet.dismiss()
-                    }
-                    tvYes?.setBackgroundResource(R.drawable.yes_btn_red)
-                    tvYes?.setOnClickListener {
-                        val currentTime = System.currentTimeMillis()
-                        userref.child(users.userId).child("userStatus").setValue(currentTime.toString())
-                        adminHomeScreen.navController.navigate(R.id.usersFragment)
-                        bottomSheet.dismiss()
-                        dialog.dismiss()
+                        tvNo?.setOnClickListener {
+                            bottomSheet.dismiss()
+                        }
+                        tvYes?.setBackgroundResource(R.drawable.yes_btn_red)
+                        tvYes?.setOnClickListener {
+                            val currentTime = System.currentTimeMillis()
+                            userref.child(users.userId).child("userStatus")
+                                .setValue(currentTime.toString())
+                            adminHomeScreen.navController.navigate(R.id.usersFragment)
+                            bottomSheet.dismiss()
+                            dialog.dismiss()
+                        }
+                    } else {
+                        Toast.makeText(
+                            adminHomeScreen,
+                            "Check your internet connection please",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
                 dialog.show()
@@ -251,6 +290,7 @@ class UsersFragment : Fragment(),UsersClick {
     override fun onUsersClick(users: Users) {
         TODO("Not yet implemented")
     }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.add("Blocked Users")
         menu.add("Change Password")
@@ -258,7 +298,7 @@ class UsersFragment : Fragment(),UsersClick {
         menu.add("Logout")
 
 
-        return super.onCreateOptionsMenu(menu,inflater)
+        return super.onCreateOptionsMenu(menu, inflater)
     }
 
 
@@ -271,13 +311,14 @@ class UsersFragment : Fragment(),UsersClick {
             builder.setPositiveButton("Yes") { dialog, which ->
                 editor.remove("value")
                 editor.apply()
+                FirebaseAuth.getInstance().signOut()
                 var intent = Intent(adminHomeScreen, LoginActivity::class.java)
                 intent.putExtra("adminEmail", adminHomeScreen.adminEmail)
                 intent.putExtra("adminPass", adminHomeScreen.adminPass)
                 intent.putExtra("adminPasscode", adminHomeScreen.adminPasscode)
                 startActivity(intent)
                 adminHomeScreen.finish()
-                Toast.makeText(adminHomeScreen,"Logout Successful", Toast.LENGTH_LONG).show()
+                Toast.makeText(adminHomeScreen, "Logout Successful", Toast.LENGTH_LONG).show()
             }
             builder.setNegativeButton("No") { dialog, which ->
                 dialog.dismiss()
@@ -285,17 +326,23 @@ class UsersFragment : Fragment(),UsersClick {
             builder.show()
 
         }
-          else if (item.title?.equals("Blocked Users") == true) {
-                  adminHomeScreen.navController.navigate(R.id.blockedUsersFragment)
+        else if(item.title?.equals("Change Password")==true){
+            var intent=Intent(adminHomeScreen,ForgotPassword::class.java)
+            adminHomeScreen.startActivity(intent)
+            adminHomeScreen.finish()
         }
-        else if(item.title?.equals("Change Passcode")==true){
-            var dialog= Dialog(adminHomeScreen)
-            var dialogBinding= PasscodeDialogBinding.inflate(layoutInflater)
+
+        else if (item.title?.equals("Blocked Users") == true) {
+            adminHomeScreen.navController.navigate(R.id.blockedUsersFragment)
+        } else if (item.title?.equals("Change Passcode") == true) {
+            var dialog = Dialog(adminHomeScreen)
+            var dialogBinding = PasscodeDialogBinding.inflate(layoutInflater)
             dialog.setContentView(dialogBinding.root)
-            dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
-            dialogBinding.etPasswordLayout1.visibility=View.GONE
-            dialogBinding.etPasswordLayout2.visibility=View.GONE
-            dialogBinding.btnSignup.visibility=View.GONE
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            dialogBinding.etPasswordLayout1.visibility = View.GONE
+            dialogBinding.etPasswordLayout2.visibility = View.GONE
+            dialogBinding.btnSignup.visibility = View.GONE
             dialogBinding.passw.visibility = View.VISIBLE
             dialogBinding.btn.visibility = View.VISIBLE
             dialogBinding.tv.setText("Enter your Account's Password")
@@ -303,82 +350,76 @@ class UsersFragment : Fragment(),UsersClick {
                 if (dialogBinding.etpass.text.toString().isNullOrEmpty()) {
                     dialogBinding.etpass.error = "Enter Password"
                     dialogBinding.etpass.requestFocus()
-                } else if(dialogBinding.etpass.text.toString().equals(adminHomeScreen.adminPass))
-                {
+                } else if (dialogBinding.etpass.text.toString().equals(adminHomeScreen.adminPass)) {
                     dialogBinding.tv.setText("Enter the 5 digit passcode which will help \n to keep your app safe")
                     dialogBinding.etPasswordLayout1.visibility = View.VISIBLE
                     dialogBinding.etPasswordLayout2.visibility = View.VISIBLE
                     dialogBinding.btnSignup.visibility = View.VISIBLE
                     dialogBinding.passw.visibility = View.GONE
                     dialogBinding.btn.visibility = View.GONE
-                }
-                else{
-                    Toast.makeText(adminHomeScreen,"Wrong Password", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(adminHomeScreen, "Wrong Password", Toast.LENGTH_LONG).show()
                 }
             }
 
             dialogBinding.btnSignup.setOnClickListener {
-                val connectivityManager =  adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val connectivityManager =
+                    adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                 val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
                 val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
-                if(dialogBinding.etPassword.text.toString().isNullOrEmpty()){
-                    dialogBinding.etPassword.error="Enter Passcode"
+                if (dialogBinding.etPassword.text.toString().isNullOrEmpty()) {
+                    dialogBinding.etPassword.error = "Enter Passcode"
                     dialogBinding.etPassword.requestFocus()
-                }
-                else if(dialogBinding.etPassword.text.toString().length<5){
-                    dialogBinding.etPassword.error="Passcode must be of at least 5 characters"
+                } else if (dialogBinding.etPassword.text.toString().length < 5) {
+                    dialogBinding.etPassword.error = "Passcode must be of at least 5 characters"
                     dialogBinding.etPassword.requestFocus()
-                }
-                else if(dialogBinding.etPassword.text.toString().length>5){
-                    dialogBinding.etPassword.error="Passcode must be of 5 characters only "
+                } else if (dialogBinding.etPassword.text.toString().length > 5) {
+                    dialogBinding.etPassword.error = "Passcode must be of 5 characters only "
                     dialogBinding.etPassword.requestFocus()
-                }
-
-                else if(dialogBinding.etREPassword.text.toString().isNullOrEmpty()){
-                    dialogBinding.etREPassword.error="Enter Passcode again"
+                } else if (dialogBinding.etREPassword.text.toString().isNullOrEmpty()) {
+                    dialogBinding.etREPassword.error = "Enter Passcode again"
                     dialogBinding.etREPassword.requestFocus()
-                }
-                else if((!dialogBinding.etPassword.text.toString().equals(dialogBinding.etREPassword.text.toString()))){
-                    dialogBinding.etREPassword.error="Passcode must be same"
+                } else if ((!dialogBinding.etPassword.text.toString()
+                        .equals(dialogBinding.etREPassword.text.toString()))
+                ) {
+                    dialogBinding.etREPassword.error = "Passcode must be same"
                     dialogBinding.etREPassword.requestFocus()
-                }
-
-
-                else{
-                    if(isConnected){
+                } else {
+                    if (isConnected) {
                         dialogBinding.btnSignup.visibility = View.GONE
                         dialogBinding.progressbar.visibility = View.VISIBLE
-                        FirebaseDatabase.getInstance().reference.child("Admin").child("adminPasscode").setValue(dialogBinding.etPassword.text.toString()).addOnCompleteListener {
-                            if(it.isSuccessful) {
-                                editorDetails.putString("adminPasscode",dialogBinding.etPassword.text.toString())
-                                editorDetails.apply()
-                                editorDetails.commit()
-                                dialogBinding.btnSignup.visibility = View.VISIBLE
-                                dialogBinding.progressbar.visibility = View.GONE
-                                dialog.dismiss()
-                            }
-                            else{
-                                dialogBinding.btnSignup.visibility = View.VISIBLE
-                                dialogBinding.progressbar.visibility = View.GONE
-                                Toast.makeText(adminHomeScreen,it.exception.toString(),
-                                    Toast.LENGTH_LONG).show()
+                        FirebaseDatabase.getInstance().reference.child("Admin")
+                            .child("adminPasscode")
+                            .setValue(dialogBinding.etPassword.text.toString())
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    editorDetails.putString(
+                                        "adminPasscode",
+                                        dialogBinding.etPassword.text.toString()
+                                    )
+                                    editorDetails.apply()
+                                    editorDetails.commit()
+                                    dialogBinding.btnSignup.visibility = View.VISIBLE
+                                    dialogBinding.progressbar.visibility = View.GONE
+                                    dialog.dismiss()
+                                }
+                                else {
+                                    dialogBinding.btnSignup.visibility = View.VISIBLE
+                                    dialogBinding.progressbar.visibility = View.GONE
+                                    Toast.makeText(adminHomeScreen, it.exception.toString(), Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
-
-
-                    }
-                    else{
-                        Toast.makeText(adminHomeScreen,"Check you Internet connection please",
-                            Toast.LENGTH_LONG).show()
+                    else {
+                        Toast.makeText(
+                            adminHomeScreen, "Check you Internet connection please",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
             dialog.show()
-
         }
-
-
         return super.onOptionsItemSelected(item)
     }
-
 }

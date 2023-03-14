@@ -2,6 +2,8 @@ package com.japnoor.anticorruptionadmin.demand
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -16,6 +18,7 @@ import com.japnoor.anticorruptionadmin.*
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.DemandDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentUserDemandBinding
+import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -75,23 +78,41 @@ class UserDemandFragment : Fragment() {
                     binding.shimmer.stopShimmer()
                     binding.recyclerView.visibility = View.VISIBLE
                     binding.search.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
                         }
 
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
                         }
 
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = java.util.ArrayList<DemandLetter>()
-                            for (item in demArrayList){
-                                if(item.demandSubject.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandNumber.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandDate.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandTime.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.userName.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.userEmail.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandDistrict.toLowerCase().contains(s.toString().toLowerCase())
+                            for (item in demArrayList) {
+                                if (item.demandSubject.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandNumber.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandDate.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandTime.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.userName.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.userEmail.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandDistrict.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
                                 )
                                     filteredList.add(item)
                             }
@@ -128,14 +149,20 @@ class UserDemandFragment : Fragment() {
 
                 dialogBind.emailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userEmail ))
+                    intent.putExtra(
+                        android.content.Intent.EXTRA_EMAIL,
+                        arrayOf(demandLetter.userEmail)
+                    )
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
                 dialogBind.oldemailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userOldEmail ))
+                    intent.putExtra(
+                        android.content.Intent.EXTRA_EMAIL,
+                        arrayOf(demandLetter.userOldEmail)
+                    )
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
@@ -165,32 +192,65 @@ class UserDemandFragment : Fragment() {
                 }
 
                 dialogBind.fabAccepted.setOnClickListener {
+                    var sendEmail = SendEmail()
+                    sendEmail.sendDemand(
+                        demandLetter.userName,
+                        demandLetter.userEmail,
+                        demandLetter.demandDistrict,
+                        demandLetter.demandNumber,
+                        demandLetter.demandSubject,
+                        demandLetter.demandDetails,
+                        demandLetter.unionName,
+                        demandLetter.imageUrl
+                    )
                     demref.child(demandLetter.demandId).child("status").setValue("1")
                     dialog.dismiss()
-
                 }
                 dialogBind.fabResolved.setOnClickListener {
-                    demref.child(demandLetter.demandId).child("status").setValue("2")
-                    dialog.dismiss()
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-                }
-                dialogBind.fabRejected.setOnClickListener {
-                    demref.child(demandLetter.demandId).child("status").setValue("3")
-                    dialog.dismiss()
-                }
-                dialogBind.image.setOnClickListener {
-                    val fileUri: Uri =demandLetter.imageUrl.toUri()
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
 
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(fileUri, "image/*")
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
-
-                    startActivity(intent)
+                    descriptionDialogBin.detail.setHint("Details about Resolving Demand")
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            FirebaseDatabase.getInstance().reference.child("Demand Letter")
+                                .child(demandLetter.demandId).child("statusDescription")
+                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .addOnCompleteListener {
+                                    descriptionDialog.dismiss()
+                                }
+                            demref.child(demandLetter.demandId).child("status").setValue("2")
+                        }
+                    }
                 }
-                dialog.show()
+                    dialogBind.fabRejected.setOnClickListener {
+                        demref.child(demandLetter.demandId).child("status").setValue("3")
+                        dialog.dismiss()
+                    }
+                    dialogBind.image.setOnClickListener {
+                        val fileUri: Uri = demandLetter.imageUrl.toUri()
+
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        intent.setDataAndType(fileUri, "image/*")
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
+
+                        startActivity(intent)
+                    }
+                    dialog.show()
+
+
             }
-
-
         })
         return binding.root
     }

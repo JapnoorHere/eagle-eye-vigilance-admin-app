@@ -2,6 +2,7 @@ package com.japnoor.anticorruption.admin.Demand
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -62,7 +63,8 @@ class AdminRejectedDemand : Fragment(), DemandClick {
         storageReference = storage.reference.child("images")
 
         adminHomeScreen = activity as AdminHomeScreen
-        var binding = FragmentAdminRejectedComplaintsBinding.inflate(layoutInflater, container, false)
+        var binding =
+            FragmentAdminRejectedComplaintsBinding.inflate(layoutInflater, container, false)
         binding.search.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 if (event.rawX >= (binding.search.right - binding.search.compoundDrawables[2].bounds.width())) {
@@ -86,29 +88,47 @@ class AdminRejectedDemand : Fragment(), DemandClick {
                     demandList.reverse()
                     adminRejectedDemandAdapter =
                         AdminRejectedDemandAdapter(adminHomeScreen, demandList, this)
-                    binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen,2)
+                    binding.recyclerView.layoutManager = GridLayoutManager(adminHomeScreen, 2)
                     binding.recyclerView.adapter = adminRejectedDemandAdapter
-                    binding.shimmer.visibility=View.GONE
+                    binding.shimmer.visibility = View.GONE
                     binding.shimmer.stopShimmer()
-                    binding.recyclerView.visibility=View.VISIBLE
+                    binding.recyclerView.visibility = View.VISIBLE
                     binding.search.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        override fun beforeTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
                         }
 
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        override fun onTextChanged(
+                            s: CharSequence?,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
                         }
 
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = java.util.ArrayList<DemandLetter>()
-                            for (item in demandList){
-                                if(item.demandSubject.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandNumber.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandDate.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandTime.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.userName.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.userEmail.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.demandDistrict.toLowerCase().contains(s.toString().toLowerCase())
+                            for (item in demandList) {
+                                if (item.demandSubject.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandNumber.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandDate.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandTime.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.userName.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.userEmail.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
+                                    || item.demandDistrict.toLowerCase()
+                                        .contains(s.toString().toLowerCase())
                                 )
                                     filteredList.add(item)
                             }
@@ -117,9 +137,9 @@ class AdminRejectedDemand : Fragment(), DemandClick {
 
                     })
                 }
-                binding.shimmer.visibility=View.GONE
+                binding.shimmer.visibility = View.GONE
                 binding.shimmer.stopShimmer()
-                binding.recyclerView.visibility=View.VISIBLE
+                binding.recyclerView.visibility = View.VISIBLE
 
             }
 
@@ -142,31 +162,40 @@ class AdminRejectedDemand : Fragment(), DemandClick {
                 dialogBind.tvDetails.setText(demandLetter.demandDetails)
                 dialogBind.tvDistrict.setText(demandLetter.demandDistrict)
                 dialogBind.oldemail.setText(demandLetter.userOldEmail)
-
-
+                dialogBind.actionstaken.setText(demandLetter.statusDescription)
+                dialogBind.actionLayout.setBackgroundDrawable(resources.getDrawable(R.drawable.rejectedcompbgtextstroke))
+                dialogBind.actionstaken.setTextColor(Color.RED)
+                dialogBind.actionstakenHeading.setTextColor(Color.RED)
+                dialogBind.unionn.setText(demandLetter.unionName)
                 dialogBind.emailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userEmail ))
+                    intent.putExtra(
+                        android.content.Intent.EXTRA_EMAIL,
+                        arrayOf(demandLetter.userEmail)
+                    )
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
                 dialogBind.oldemailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( demandLetter.userOldEmail ))
+                    intent.putExtra(
+                        android.content.Intent.EXTRA_EMAIL,
+                        arrayOf(demandLetter.userOldEmail)
+                    )
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
                 dialogBind.image.setOnClickListener {
                 }
-                dialogBind.fabAccepted.visibility=View.GONE
-                dialogBind.fabRejected.visibility=View.GONE
-                dialogBind.fabResolved.visibility=View.GONE
-                dialogBind.stamp.visibility=View.VISIBLE
+                dialogBind.fabAccepted.visibility = View.GONE
+                dialogBind.fabRejected.visibility = View.GONE
+                dialogBind.fabResolved.visibility = View.GONE
+                dialogBind.stamp.visibility = View.VISIBLE
                 dialogBind.stamp.setImageResource(R.drawable.rejected_stamp)
 
                 dialogBind.image.setOnClickListener {
-                    val fileUri: Uri =demandLetter.imageUrl.toUri()
+                    val fileUri: Uri = demandLetter.imageUrl.toUri()
 
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.setDataAndType(fileUri, "image/*")

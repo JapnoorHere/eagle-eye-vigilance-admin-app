@@ -24,7 +24,8 @@ class UserComplaintAdapter(var context: AdminHomeScreen, var complaintsList: Arr
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.compAgainst.setText(complaintsList[position].complaintAgainst)
-        holder.binding.compSumm.setText(complaintsList[position].complaintSummary)
+        holder.binding.tvDistrict.setText(complaintsList[position].complaintDistrict)
+        holder.binding.compdetails.setText(complaintsList[position].complaintDetails)
         holder.binding.date.setText(complaintsList[position].complaintDate)
         holder.binding.time.setText(complaintsList[position].complaintTime)
         holder.binding.complaintNumber.setText(complaintsList[position].complaintNumber)

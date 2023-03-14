@@ -8,3 +8,13 @@ interface UserComplaintClick {
 interface UserDemandClick {
     fun onClick(demandLetter: DemandLetter)
 }
+
+interface NotificationClick {
+    fun onClick(notification: Notification)
+}
+
+interface SendEmailClick {
+    fun onClick(complaints: Complaints)
+}
+
+

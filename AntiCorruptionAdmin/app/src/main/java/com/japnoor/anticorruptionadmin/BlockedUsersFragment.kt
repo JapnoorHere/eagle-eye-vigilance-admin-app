@@ -1,10 +1,13 @@
 package com.japnoor.anticorruptionadmin
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -114,6 +117,7 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 TODO("Not yet implemented")
             }
 
+            @SuppressLint("ServiceCast")
             override fun onUsersClick(users: Users) {
 
                 var dialog = Dialog(requireContext())
@@ -127,16 +131,41 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 var complaintCount = 0
                 var demandCount = 0
                 dialogBinding.cardComplaint.setOnClickListener {
-                    dialog.dismiss()
-                    var bundle=Bundle()
-                    bundle.putString("uid",users.userId.toString())
-                    adminHomeScreen.navController.navigate(R.id.userComplaintFragment,bundle)
+                    val connectivityManager =
+                        adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                    val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                    if (isConnected) {
+                        dialog.dismiss()
+                        var bundle = Bundle()
+                        bundle.putString("uid", users.userId.toString())
+                        adminHomeScreen.navController.navigate(R.id.userComplaintFragment, bundle)
+                    } else {
+                        Toast.makeText(
+                            adminHomeScreen,
+                            "Check your internet connection please",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                    }
                 }
                 dialogBinding.cardDemand.setOnClickListener {
-                    dialog.dismiss()
-                    var bundle=Bundle()
-                    bundle.putString("uid",users.userId.toString())
-                    adminHomeScreen.navController.navigate(R.id.userDemandFragment,bundle)
+                    val connectivityManager =
+                        adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                    val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                    if (isConnected) {
+                        dialog.dismiss()
+                        var bundle = Bundle()
+                        bundle.putString("uid", users.userId.toString())
+                        adminHomeScreen.navController.navigate(R.id.userDemandFragment, bundle)
+                    } else {
+                        Toast.makeText(
+                            adminHomeScreen,
+                            "Check your internet connection please",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
                 compref.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -159,7 +188,7 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         for (eachdem in snapshot.children) {
                             var dem = eachdem.getValue(DemandLetter::class.java)
-                            if (dem != null && users.userId.equals(dem.userId) ) {
+                            if (dem != null && users.userId.equals(dem.userId)) {
                                 demandCount += 1
                                 dialogBinding.demand.setText(demandCount.toString())
                             }
@@ -186,23 +215,27 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 dialogBinding.date.setText(users.userDate)
                 val currentTime = System.currentTimeMillis()
                 //                    val sevenDaysInMillisecond = 7 * 24 * 60 * 60 * 1000
-                val sevenDaysInMillisecond : Long = 604800000
-                var timecheck:Long=0
-                userref.addValueEventListener(object  : ValueEventListener{
+                val sevenDaysInMillisecond: Long = 604800000
+                var timecheck: Long = 0
+                userref.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        for(each in snapshot.children){
-                            var userdetail=each.getValue(Users::class.java)
-                            if(userdetail!=null && userdetail.userId.equals(users.userId) && userdetail.userStatus!="0"){
-                                timecheck=userdetail.userStatus.toLong() + sevenDaysInMillisecond
+                        for (each in snapshot.children) {
+                            var userdetail = each.getValue(Users::class.java)
+                            if (userdetail != null && userdetail.userId.equals(users.userId) && userdetail.userStatus != "0") {
+                                timecheck = userdetail.userStatus.toLong() + sevenDaysInMillisecond
                                 println("Time->" + timecheck)
+                                if (currentTime >= timecheck) {
+                                    userref.child(users.userId).child("userStatus").setValue("0")
 
+                                }
                             }
                         }
 
-                        var timeleft=timecheck-currentTime
+                        var timeleft = timecheck - currentTime
                         val days = timeleft / (1000 * 60 * 60 * 24)
                         val hours = (timeleft / (1000 * 60 * 60)) % 24
-                        dialogBinding.unblocktime.text ="Unblocks in : " + days.toString() + "d " + hours.toString() +"h"
+                        dialogBinding.unblocktime.text =
+                            "Unblocks in : " + days.toString() + "d " + hours.toString() + "h"
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -213,10 +246,15 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                 println("Count-> " + complaintCount.toString())
                 dialogBinding.block.setText("unblock this user")
                 dialogBinding.block.setOnClickListener {
+                    val connectivityManager =
+                        adminHomeScreen.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                    val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                    if (isConnected) {
                     var bottomSheet = BottomSheetDialog(requireContext())
                     bottomSheet.setContentView(R.layout.dialog_delete_users)
                     bottomSheet.show()
-                    var tvmsg=bottomSheet.findViewById<TextView>(R.id.textmsg)
+                    var tvmsg = bottomSheet.findViewById<TextView>(R.id.textmsg)
                     var tvYes = bottomSheet.findViewById<TextView>(R.id.tvYes)
                     var tvNo = bottomSheet.findViewById<TextView>(R.id.tvNo)
                     tvYes?.setBackgroundResource(R.drawable.yes_btn_red)
@@ -231,6 +269,11 @@ class BlockedUsersFragment : Fragment(),UsersClick {
                         dialog.dismiss()
                     }
                 }
+                    else{
+                        Toast.makeText(adminHomeScreen,"Check your internet connection please", Toast.LENGTH_LONG).show()
+
+                    }
+            }
                 dialog.show()
             }
         })

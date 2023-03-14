@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/admin_nav_graph.xml"
     app:startDestination="@id/adminHomeFragment">
 
@@ -56,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/adminTotalDemand"
-        android:name="com.japnoor.anticorruption.admin.Demand.AdminTotalDemand"
+        android:name="com.japnoor.anticorruptionadmin.demand.AdminTotalDemand"
         android:label="AdminTotalDemand" />
     <fragment
         android:id="@+id/adminAcceptedDemand"
@@ -86,4 +87,17 @@
         android:id="@+id/userDemandFragment"
         android:name="com.japnoor.anticorruptionadmin.demand.UserDemandFragment"
         android:label="UserDemandFragment" />
+    <fragment
+        android:id="@+id/announcementFragment"
+        android:name="com.japnoor.anticorruptionadmin.AnnouncementFragment"
+        android:label="AnnouncementFragment" />
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.japnoor.anticorruptionadmin.NotificationFragment"
+        android:label="fragment_notification"
+        tools:layout="@layout/fragment_notification" />
+    <fragment
+        android:id="@+id/importantLinks"
+        android:name="com.japnoor.anticorruptionadmin.ImportantLinks"
+        android:label="ImportantLinks" />
 </navigation>

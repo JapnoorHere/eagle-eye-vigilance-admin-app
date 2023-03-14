@@ -54,13 +54,19 @@ class AdminHomeScreen : AppCompatActivity() {
                 R.id.bnDemandLetter -> {
                     navController.navigate(R.id.adminDemandFragment)
                     this.setTitle("Demand Letters")
-
-
                 }
                 R.id.bnProfile -> {
                     navController.navigate(R.id.usersFragment)
                     this.setTitle("Users")
 
+                }
+                R.id.announcement->{
+                      navController.navigate(R.id.announcementFragment)
+                    this.setTitle("Announcements")
+                }
+                R.id.notification->{
+                    navController.navigate(R.id.notificationFragment)
+                    this.setTitle("Notifications")
                 }
                 else -> {}
             }

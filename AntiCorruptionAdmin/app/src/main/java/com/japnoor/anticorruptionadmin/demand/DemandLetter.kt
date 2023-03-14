@@ -12,5 +12,9 @@ data class DemandLetter(var demandSubject : String="",
                         var userEmail : String="",
                         var userOldEmail : String="",
                         var status : String="",
-                        var demandNumber: String="",
-                        var demandTime : String="")
+                        var demandNumber : String="",
+                        var demandTime : String="",
+                        var statusDescription: String = "",
+                        var unionName: String = ""
+
+)

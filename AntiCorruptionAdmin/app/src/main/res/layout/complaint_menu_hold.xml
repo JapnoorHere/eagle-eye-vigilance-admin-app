@@ -17,6 +17,25 @@
 
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/userProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardBackgroundColor="#859FF3"
+        app:cardCornerRadius="15dp">
+        <TextView
+            android:padding="15dp"
+            android:layout_width="match_parent"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:drawableLeft="@drawable/ic_baseline_person_outline_24"
+            android:layout_height="wrap_content"
+            android:text="   User Profile"
+            />
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,6 +50,25 @@
             android:drawableLeft="@drawable/ic_baseline_chat_24"
             android:layout_height="wrap_content"
             android:text="   Chat"
+            />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/blockUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardBackgroundColor="#859FF3"
+        app:cardCornerRadius="15dp">
+        <TextView
+            android:padding="15dp"
+            android:id="@+id/blocktext"
+            android:layout_width="match_parent"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:drawableLeft="@drawable/ic_baseline_block_24"
+            android:layout_height="wrap_content"
+            android:text="   Block this User"
             />
     </androidx.cardview.widget.CardView>
 

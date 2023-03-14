@@ -3,6 +3,8 @@ package com.japnoor.anticorruption.admin
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -22,7 +24,9 @@ import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminAcceptedComplaintsBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
-import java.util.ArrayList
+import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 private const val ARG_PARAM1 = "param1"
@@ -142,12 +146,15 @@ class AdminAcceptedFragment : Fragment(),ComplaintClickedInterface {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
+                dialogBind.actionLayout.visibility=View.GONE
                 dialogBind.stamp.visibility=View.VISIBLE
                 dialogBind.stamp.setImageResource(R.drawable.accpeted_stamp)
                 dialogBind.name.setText(complaints.userName)
                 dialogBind.email.setText(complaints.userEmail)
                 dialogBind.date.setText(complaints.complaintDate)
-                dialogBind.tvSummary.setText(complaints.complaintSummary)
+                dialogBind.tvDept.setText(complaints.complaintDept)
+                dialogBind.tvLoc.setText(complaints.complaintLoc)
+                dialogBind.tvCategory.setText(complaints.complaintCategory)
                 dialogBind.tvAgainst.setText(complaints.complaintAgainst)
                 dialogBind.tvDetails.setText(complaints.complaintDetails)
                 dialogBind.tvDistrict.setText(complaints.complaintDistrict)
@@ -168,18 +175,101 @@ class AdminAcceptedFragment : Fragment(),ComplaintClickedInterface {
                 if (complaints.audioUrl.isNullOrEmpty())
                     dialogBind.audio.visibility = View.GONE
 
+                if (complaints.imageUrl.isNullOrEmpty())
+                    dialogBind.image.visibility = View.GONE
+
                 if (complaints.videoUrl.isNullOrEmpty())
                     dialogBind.video.visibility = View.GONE
 
                 dialogBind.fabAccepted.visibility=View.GONE
                 dialogBind.fabResolved.setOnClickListener {
-                    compref.child(complaints.complaintId).child("status").setValue("2")
-                    dialog.dismiss()
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            compref.child(complaints.complaintId).child("statusDescription")
+                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .addOnCompleteListener {
+                                    descriptionDialog.dismiss()
+                                }
+                            compref.child(complaints.complaintId).child("status").setValue("2")
+                            var notificationid =
+                                FirebaseDatabase.getInstance().reference.child("Notifications")
+                                    .push().key.toString()
+                            val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                            val notificationTime = format.format(Date())
+
+                            var notification = Notification(
+                                notificationid,
+                                complaints.complaintAgainst,
+                                notificationTime,
+                                complaints.userId,
+                                complaints.complaintId,
+                                complaints.userName,
+                                "2",
+                                complaints.complaintNumber, "c"
+                            )
+                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                .child(notificationid).setValue(notification)
+
+                            dialog.dismiss()
+                        }
+                    }
+
                 }
                 dialogBind.fabRejected.setOnClickListener {
-                    compref.child(complaints.complaintId).child("status").setValue("3")
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.detail.setHint("Details about Rejecting Complaint")
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            compref.child(complaints.complaintId).child("statusDescription")
+                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .addOnCompleteListener {
+                                    descriptionDialog.dismiss()
+                                }
+                            compref.child(complaints.complaintId).child("status").setValue("3")
+                            var notificationid =
+                                FirebaseDatabase.getInstance().reference.child("Notifications")
+                                    .push().key.toString()
+                            val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                            val notificationTime = format.format(Date())
 
-                    dialog.dismiss()
+                            var notification = Notification(
+                                notificationid,
+                                complaints.complaintAgainst,
+                                notificationTime,
+                                complaints.userId,
+                                complaints.complaintId,
+                                complaints.userName,
+                                "3",
+                                complaints.complaintNumber, "c"
+                            )
+                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                .child(notificationid).setValue(notification)
+                            dialog.dismiss()
+                        }
+                    }
                 }
 
                 dialogBind.audio.setOnClickListener {
@@ -187,7 +277,16 @@ class AdminAcceptedFragment : Fragment(),ComplaintClickedInterface {
                     var intent=Intent(adminHomeScreen, AudioActivity::class.java)
                     intent.putExtra("audio",fileUri.toString())
                     adminHomeScreen.startActivity(intent)
+                }
 
+                dialogBind.image.setOnClickListener {
+                    val fileUri: Uri = complaints.imageUrl.toUri()
+
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(fileUri, "image/*")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
+
+                    startActivity(intent)
                 }
 
                 dialogBind.video.setOnClickListener {

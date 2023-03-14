@@ -1,7 +1,10 @@
 package com.japnoor.anticorruptionadmin
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,7 +13,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.japnoor.anticorruptionadmin.databinding.FragmentSplashScreenBinding
 
@@ -60,40 +65,51 @@ class SplashScreenFragment : Fragment() {
         var adminPass: String = ""
         var adminPasscode: String = ""
         var adminList = ArrayList<String>()
-        FirebaseDatabase.getInstance().reference.child("Admin")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (each in snapshot.children) {
-                        var adminDetail = each.getValue(String::class.java)
-                        adminList.add(adminDetail.toString())
-                        println("Admin ->" + adminList)
 
+
+        FirebaseDatabase.getInstance().reference.child("Admin").child("adminEmail").get().addOnCompleteListener {
+            editorDetails.putString("adminEmail", it.result.value.toString())
+            editorDetails.apply()
+            editorDetails.commit()
+        }
+        FirebaseDatabase.getInstance().reference.child("Admin").child("adminPass").get().addOnCompleteListener {
+            editorDetails.putString("adminPass", it.result.value.toString())
+            editorDetails.apply()
+            editorDetails.commit()
+        }
+        FirebaseDatabase.getInstance().reference.child("Admin").child("adminPasscode").get().addOnCompleteListener {
+            editorDetails.putString("adminPasscode", it.result.value.toString())
+            editorDetails.apply()
+            editorDetails.commit()
+        }
+
+
+//        var admin=Admin("eagleeyevigilance@gmail.com","111111","22222")
+//
+//        FirebaseDatabase.getInstance().reference.child("Admin").setValue(admin)
+
+        var user=FirebaseAuth.getInstance().currentUser
+
+        Handler(Looper.getMainLooper()).postDelayed(
+            {
+                val connectivityManager =  splashScreenActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+                val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                if (isConnected){
+                    if (user!=null) {
+                        splashScreenActivity.navController.navigate(R.id.passcodeFragment)
+                    } else {
+                        var intent = Intent(splashScreenActivity, LoginActivity::class.java)
+                        splashScreenActivity.startActivity(intent)
+                        splashScreenActivity.finish()
                     }
-                    adminEmail = adminList[0]
-                    adminPass = adminList[1]
-                    adminPasscode = adminList[2]
-                    editorDetails.putString("adminEmail",adminEmail)
-                    editorDetails.putString("adminPass",adminPass)
-                    editorDetails.putString("adminPasscode",adminPasscode)
-                    editorDetails.apply()
-                    editorDetails.commit()
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                else{
+                    Toast.makeText(splashScreenActivity,"Check your internet connection please", Toast.LENGTH_LONG).show()
+                    var intent=Intent(splashScreenActivity,LoginActivity::class.java)
+                    startActivity(intent)
+                    splashScreenActivity.finish()
                 }
-
-            })
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (sharedPreferences.contains("value")) {
-                splashScreenActivity.navController.navigate(R.id.passcodeFragment)
-            } else {
-                            var intent = Intent(splashScreenActivity,LoginActivity::class.java)
-                            splashScreenActivity.startActivity(intent)
-                            splashScreenActivity.finish()
-            }
-
         }, 2500)
 
 

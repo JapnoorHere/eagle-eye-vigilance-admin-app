@@ -2,6 +2,8 @@ package com.japnoor.anticorruption.admin.Demand
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -22,7 +24,11 @@ import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.DemandDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminAcceptedComplaintsBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
+import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -133,8 +139,8 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
-
-
+                dialogBind.unionn.setText(demandLetter.unionName)
+                dialogBind.actionLayout.visibility=View.GONE
                 dialogBind.date.setText(demandLetter.demandDate)
                 dialogBind.name.setText(demandLetter.userName)
                 dialogBind.email.setText(demandLetter.userEmail)
@@ -163,13 +169,96 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
                 dialogBind.fabResolved.setOnClickListener {
-                    demRef.child(demandLetter.demandId).child("status").setValue("2")
-                    dialog.dismiss()
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
+                    descriptionDialogBin.detail.setHint("Details about Resolving Demand")
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            demRef.child(demandLetter.demandId).child("statusDescription")
+                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .addOnCompleteListener {
+                                    descriptionDialog.dismiss()
+                                }
+                            demRef.child(demandLetter.demandId).child("status").setValue("2")
+                            var notificationid =
+                                FirebaseDatabase.getInstance().reference.child("Notifications")
+                                    .push().key.toString()
+                            val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                            val notificationTime = format.format(Date())
+
+                            var notification = Notification(
+                                notificationid,
+                                demandLetter.demandSubject,
+                                notificationTime,
+                                demandLetter.userId,
+                                demandLetter.demandId,
+                                demandLetter.userName,
+                                "2",
+                                demandLetter.demandNumber, "d"
+                            )
+                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                .child(notificationid).setValue(notification)
+
+                            dialog.dismiss()
+
+                        }
+                    }
                 }
                 dialogBind.fabRejected.setOnClickListener {
-                    demRef.child(demandLetter.demandId).child("status").setValue("3")
-                    dialog.dismiss()
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
+                    descriptionDialogBin.detail.setHint("Details about Rejecting Demand")
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            demRef.child(demandLetter.demandId).child("statusDescription")
+                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .addOnCompleteListener {
+                                    descriptionDialog.dismiss()
+                                }
+                            demRef.child(demandLetter.demandId).child("status").setValue("3")
+                            var notificationid =
+                                FirebaseDatabase.getInstance().reference.child("Notifications")
+                                    .push().key.toString()
+                            val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                            val notificationTime = format.format(Date())
+
+                            var notification = Notification(
+                                notificationid,
+                                demandLetter.demandSubject,
+                                notificationTime,
+                                demandLetter.userId,
+                                demandLetter.demandId,
+                                demandLetter.userName,
+                                "",
+                                demandLetter.demandNumber, "d"
+                            )
+                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                .child(notificationid).setValue(notification)
+                            dialog.dismiss()
+                        }
+                    }
                 }
                 dialogBind.image.setOnClickListener {
                     val fileUri: Uri =demandLetter.imageUrl.toUri()

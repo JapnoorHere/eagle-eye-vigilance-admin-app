@@ -8,8 +8,24 @@
         android:id="@+id/bnDemandLetter"
         android:icon="@drawable/ic_baseline_edit_note_24"
         />
+
+
+    <item android:title="Announcement"
+        android:id="@+id/announcement"
+        android:icon="@drawable/announcement"
+        />
+
+
+
+    <item android:title="Notifications"
+        android:id="@+id/notification"
+        android:icon="@drawable/ic_baseline_notifications_24"
+        />
+
+
     <item android:title="Users"
         android:id="@+id/bnProfile"
         android:icon="@drawable/ic_baseline_person_24"
         />
+
 </menu>
