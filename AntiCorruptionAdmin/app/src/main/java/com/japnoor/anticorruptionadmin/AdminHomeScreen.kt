@@ -35,11 +35,12 @@ class AdminHomeScreen : AppCompatActivity() {
         editorDetails=sharedPreferencesDetails.edit()
         binding = ActivityAdminHomeScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        adminEmail=sharedPreferencesDetails.getString("adminEmail","").toString()
-        adminPass=sharedPreferencesDetails.getString("adminPass","").toString()
-        adminPasscode=sharedPreferencesDetails.getString("adminPasscode","").toString()
+        adminEmail=intent.getStringExtra("adminEmail").toString()
+        adminPass=intent.getStringExtra("adminPass").toString()
+        adminPasscode=intent.getStringExtra("adminPasscode").toString()
             sharedPreferences=getSharedPreferences(resources.getString(R.string.app_name), MODE_PRIVATE)
             editor=sharedPreferences.edit()
+
 
         navController = findNavController(R.id.navControllerAdmin)
         supportActionBar?.setDisplayShowHomeEnabled(true)

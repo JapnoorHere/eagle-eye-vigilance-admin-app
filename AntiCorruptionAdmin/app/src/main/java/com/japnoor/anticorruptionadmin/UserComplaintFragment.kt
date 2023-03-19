@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.core.net.toUri
@@ -16,6 +17,11 @@ import com.google.firebase.database.*
 import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentUserComplaintBinding
 import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
+import java.text.SimpleDateFormat
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+import kotlin.collections.ArrayList
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -30,6 +36,9 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
     lateinit var usercomplaintAdapter: UserComplaintAdapter
     var status: String = ""
 
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -37,11 +46,26 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
             param2 = it.getString(ARG_PARAM2)
         }
     }
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
         adminHomeScreen = activity as AdminHomeScreen
         arguments.let {
             uid = it?.getString("uid").toString()
@@ -97,23 +121,23 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = ArrayList<Complaints>()
                             for (item in complaintArrayList) {
-                                if (item.complaintAgainst.toLowerCase()
+                                if (decrypt(item.complaintAgainst).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.complaintNumber.toLowerCase()
+                                    || decrypt(item.complaintNumber).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.complaintDate.toLowerCase()
+                                    || decrypt(item.complaintDate).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.complaintTime.toLowerCase()
+                                    || decrypt(item.complaintTime).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.status.toLowerCase()
+                                    || decrypt(item.status).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.userName.toLowerCase()
+                                    || decrypt(item.userName).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.userEmail.toLowerCase()
+                                    || decrypt(item.userEmail).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.userOldEmail.toLowerCase()
+                                    || decrypt(item.userOldEmail).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.complaintDistrict.toLowerCase()
+                                    || decrypt(item.complaintDistrict).toLowerCase()
                                         .contains(s.toString().toLowerCase())
                                 )
                                     filteredList.add(item)
@@ -140,24 +164,34 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
-                dialogBind.name.setText(complaints.userName)
-                dialogBind.email.setText(complaints.userEmail)
-                dialogBind.date.setText(complaints.complaintDate)
-                dialogBind.tvDept.setText(complaints.complaintDept)
-                dialogBind.tvLoc.setText(complaints.complaintLoc)
-                dialogBind.tvCategory.setText(complaints.complaintCategory)
-                dialogBind.tvAgainst.setText(complaints.complaintAgainst)
-                dialogBind.tvDetails.setText(complaints.complaintDetails)
-                dialogBind.tvDistrict.setText(complaints.complaintDistrict)
-                dialogBind.oldemail.setText(complaints.userOldEmail)
-
-
+                dialogBind.name.setText(decrypt(complaints.userName))
+                dialogBind.email.setText(decrypt(complaints.userEmail))
+                dialogBind.date.setText(decrypt(complaints.complaintDate))
+                dialogBind.tvDept.setText(decrypt(complaints.complaintDept))
+                dialogBind.tvLoc.setText(decrypt(complaints.complaintLoc))
+                dialogBind.tvCategory.setText(decrypt(complaints.complaintCategory))
+                dialogBind.tvAgainst.setText(decrypt(complaints.complaintAgainst))
+                dialogBind.tvDetails.setText(decrypt(complaints.complaintDetails))
+                dialogBind.tvDistrict.setText(decrypt(complaints.complaintDistrict))
+                dialogBind.oldemail.setText(decrypt(complaints.userOldEmail))
+                if(complaints.status.equals("2")) {
+                    dialogBind.actionstaken.setText(decrypt(complaints.statusDescription))
+                }
+                else if(complaints.status.equals("3")) {
+                    dialogBind.actionLayout.setBackgroundDrawable(resources.getDrawable(R.drawable.rejectedcompbgtextstroke))
+                    dialogBind.actionstaken.setText(decrypt(complaints.statusDescription))
+                    dialogBind.actionstaken.setTextColor(Color.RED)
+                    dialogBind.actionstakenHeading.setTextColor(Color.RED)
+                }
+                else{
+                    dialogBind.actionLayout.visibility=View.GONE
+                }
 
                 dialogBind.emailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.putExtra(
                         android.content.Intent.EXTRA_EMAIL,
-                        arrayOf(complaints.userEmail)
+                        arrayOf(decrypt(complaints.userEmail))
                     );
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
@@ -167,17 +201,19 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.putExtra(
                         android.content.Intent.EXTRA_EMAIL,
-                        arrayOf(complaints.userOldEmail)
+                        arrayOf(decrypt(complaints.userOldEmail))
                     );
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
-                if (complaints.audioUrl.isNullOrEmpty())
+                if (decrypt(complaints.audioUrl).isNullOrEmpty())
                     dialogBind.audio.visibility = View.GONE
 
-                if (complaints.videoUrl.isNullOrEmpty())
+                if (decrypt(complaints.videoUrl).isNullOrEmpty())
                     dialogBind.video.visibility = View.GONE
+                if(decrypt(complaints.imageUrl).isNullOrEmpty())
+                    dialogBind.image.visibility=View.GONE
 
 
 
@@ -209,35 +245,51 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                     if (complaints.audioUrl.isNullOrEmpty()) {
                         var sendEmail = SendEmail()
                         sendEmail.sendComplaint(
-                            complaints.userEmail,
-                            complaints.userName,
-                            complaints.complaintNumber,
-                            complaints.complaintAgainst,
-                            complaints.complaintDetails,
-                            complaints.complaintDept,
-                            complaints.complaintCategory,
-                            complaints.complaintLoc,
-                            complaints.complaintDistrict,"No",complaints.videoUrl)
+                            decrypt(complaints.userEmail),
+                            decrypt(complaints.userName),
+                            decrypt(complaints.complaintNumber),
+                            decrypt(complaints.complaintAgainst),
+                            decrypt(complaints.complaintDetails),
+                            decrypt(complaints.complaintDept),
+                            decrypt(complaints.complaintCategory),
+                            decrypt(complaints.complaintLoc),
+                            decrypt(complaints.complaintDistrict),"No",decrypt(complaints.videoUrl))
                     }
                     else if(complaints.videoUrl.isNullOrEmpty()){
                         var sendEmail = SendEmail()
                         sendEmail.sendComplaint(
-                            complaints.userEmail,
-                            complaints.userName,
-                            complaints.complaintNumber,
-                            complaints.complaintAgainst,
-                            complaints.complaintDetails,
-                            complaints.complaintDept,
-                            complaints.complaintCategory,
-                            complaints.complaintLoc,
-                            complaints.complaintDistrict,complaints.audioUrl,"No")
+                            decrypt(complaints.userEmail),
+                            decrypt(complaints.userName),
+                            decrypt(complaints.complaintNumber),
+                            decrypt(complaints.complaintAgainst),
+                            decrypt(complaints.complaintDetails),
+                            decrypt(complaints.complaintDept),
+                            decrypt(complaints.complaintCategory),
+                            decrypt(complaints.complaintLoc),
+                            decrypt(complaints.complaintDistrict),decrypt(complaints.audioUrl),"No")
                     }
                     compref.child(complaints.complaintId).child("status").setValue("1")
+                    var notificationid =
+                        FirebaseDatabase.getInstance().reference.child("Notifications")
+                            .push().key.toString()
+                    val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                    val notificationTime = format.format(Date())
 
+                    var notification = Notification(
+                        notificationid,
+                        complaints.complaintAgainst,
+                        encrypt(notificationTime),
+                        complaints.userId,
+                        complaints.complaintId, complaints.userName,
+                        "1",
+                        complaints.complaintNumber, "c"
+                    )
+                    FirebaseDatabase.getInstance().reference.child("Notifications")
+                        .child(notificationid).setValue(notification)
                     // Update the status of the complaint in the database
-                    val complaintRef =
-                        FirebaseDatabase.getInstance().getReference(complaints.complaintId)
-                    complaintRef.child("status").setValue(status)
+//                    val complaintRef =
+//                        FirebaseDatabase.getInstance().getReference(complaints.complaintId)
+//                    complaintRef.child("status").setValue(status)
 
 //                        // Send a notification to the user's app via FCM
 //                        val fcm = FirebaseMessaging.getInstance()
@@ -264,11 +316,31 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                         if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
                             descriptionDialogBin.detail.error = "Cannot be Empty"
                         } else {
+                            descriptionDialog.dismiss()
                             compref.child(complaints.complaintId).child("status").setValue("2")
                             compref.child(complaints.complaintId).child("statusDescription")
-                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .setValue(encrypt(descriptionDialogBin.detail.text.toString()))
                                 .addOnCompleteListener {
-                                    descriptionDialog.dismiss()
+                                    var notificationid =
+                                        FirebaseDatabase.getInstance().reference.child("Notifications")
+                                            .push().key.toString()
+                                    val format =
+                                        SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                                    val notificationTime = format.format(Date())
+
+                                    var notification = Notification(
+                                        notificationid,
+                                        complaints.complaintAgainst,
+                                        encrypt(notificationTime),
+                                        complaints.userId,
+                                        complaints.complaintId,
+                                        complaints.userName,
+                                        "2",
+                                        complaints.complaintNumber, "c"
+                                    )
+                                    FirebaseDatabase.getInstance().reference.child("Notifications")
+                                        .child(notificationid).setValue(notification)
+                                    dialog.dismiss()
                                 }
                             compref.child(complaints.complaintId).child("status").setValue("2")
                             dialog.dismiss()
@@ -276,26 +348,76 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                     }
                 }
                 dialogBind.fabRejected.setOnClickListener {
-                    compref.child(complaints.complaintId).child("status").setValue("3")
+                    var descriptionDialog = Dialog(adminHomeScreen)
+                    var descriptionDialogBin =
+                        StatusDescriptionDialogBinding.inflate(layoutInflater)
+                    descriptionDialog.setContentView(descriptionDialogBin.root)
+                    descriptionDialog.show()
+                    descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-                    dialog.dismiss()
+                    descriptionDialog.setCancelable(false)
+                    descriptionDialogBin.cancel.setOnClickListener {
+                        descriptionDialog.dismiss()
+                    }
+                    descriptionDialogBin.detail.setHint("Details about Rejecting Complaint")
+
+                    descriptionDialogBin.btnDone.setOnClickListener {
+                        if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                            descriptionDialogBin.detail.error = "Cannot be Empty"
+                        } else {
+                            descriptionDialog.dismiss()
+                            compref.child(complaints.complaintId).child("status").setValue("3")
+                            compref.child(complaints.complaintId).child("statusDescription")
+                                .setValue(encrypt(descriptionDialogBin.detail.text.toString()))
+                            var notificationid =
+                                FirebaseDatabase.getInstance().reference.child("Notifications")
+                                    .push().key.toString()
+                            val format =
+                                SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                            val notificationTime = format.format(Date())
+
+                            var notification = Notification(
+                                notificationid,
+                                complaints.complaintAgainst,
+                                encrypt(notificationTime),
+                                complaints.userId,
+                                complaints.complaintId,
+                                complaints.userName,
+                                "3",
+                                complaints.complaintNumber, "c"
+                            )
+                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                .child(notificationid).setValue(notification)
+                            dialog.dismiss()
+                        }
+                    }
                 }
 
                 dialogBind.audio.setOnClickListener {
-                    val fileUri: Uri = complaints.audioUrl.toUri()
+                    var url=decrypt(complaints.audioUrl)
+                    val fileUri: Uri = url.toUri()
                     var intent = Intent(adminHomeScreen, AudioActivity::class.java)
                     intent.putExtra("audio", fileUri.toString())
                     adminHomeScreen.startActivity(intent)
-
                 }
 
                 dialogBind.video.setOnClickListener {
-                    val fileUri: Uri = complaints.videoUrl.toUri()
-
+                    var url =decrypt(complaints.videoUrl)
+                    val fileUri: Uri = url.toUri()
                     var intent = Intent(adminHomeScreen, VideoActivity::class.java)
                     intent.putExtra("video", fileUri.toString())
                     adminHomeScreen.startActivity(intent)
                 }
+
+                dialogBind.image.setOnClickListener {
+                    var url=decrypt(complaints.imageUrl)
+                    val fileUri: Uri = url.toUri()
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(fileUri, "image/*")
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    adminHomeScreen.startActivity(intent)
+                }
+
 
                 dialog.show()
             }

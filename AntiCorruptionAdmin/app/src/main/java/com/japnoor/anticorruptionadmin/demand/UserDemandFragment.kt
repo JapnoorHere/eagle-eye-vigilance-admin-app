@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.core.net.toUri
@@ -19,6 +20,11 @@ import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.DemandDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentUserDemandBinding
 import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
+import java.text.SimpleDateFormat
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+import kotlin.collections.ArrayList
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -30,7 +36,21 @@ class UserDemandFragment : Fragment() {
     lateinit var adminHomeScreen : AdminHomeScreen
     lateinit var demref: DatabaseReference
     var uid : String=""
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -43,6 +63,9 @@ class UserDemandFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
         arguments.let {
             uid=it?.getString("uid").toString()
         }
@@ -97,21 +120,21 @@ class UserDemandFragment : Fragment() {
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = java.util.ArrayList<DemandLetter>()
                             for (item in demArrayList) {
-                                if (item.demandSubject.toLowerCase()
+                                if (decrypt(item.demandSubject).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.demandNumber.toLowerCase()
+                                    || decrypt(item.demandNumber).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.demandDate.toLowerCase()
+                                    || decrypt(item.demandDate).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.demandTime.toLowerCase()
+                                    || decrypt(item.demandTime).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.status.toLowerCase()
+                                    || decrypt(item.status).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.userName.toLowerCase()
+                                    || decrypt(item.userName).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.userEmail.toLowerCase()
+                                    || decrypt(item.userEmail).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.demandDistrict.toLowerCase()
+                                    || decrypt(item.demandDistrict).toLowerCase()
                                         .contains(s.toString().toLowerCase())
                                 )
                                     filteredList.add(item)
@@ -138,20 +161,32 @@ class UserDemandFragment : Fragment() {
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT
                 )
-                dialogBind.date.setText(demandLetter.demandDate)
-                dialogBind.name.setText(demandLetter.userName)
-                dialogBind.email.setText(demandLetter.userEmail)
-                dialogBind.tvSummary.setText(demandLetter.demandSubject)
-                dialogBind.tvDetails.setText(demandLetter.demandDetails)
-                dialogBind.tvDistrict.setText(demandLetter.demandDistrict)
-                dialogBind.oldemail.setText(demandLetter.userOldEmail)
-
+                dialogBind.date.setText(decrypt(demandLetter.demandDate))
+                dialogBind.name.setText(decrypt(demandLetter.userName))
+                dialogBind.email.setText(decrypt(demandLetter.userEmail))
+                dialogBind.tvSummary.setText(decrypt(demandLetter.demandSubject))
+                dialogBind.tvDetails.setText(decrypt(demandLetter.demandDetails))
+                dialogBind.tvDistrict.setText(decrypt(demandLetter.demandDistrict))
+                dialogBind.oldemail.setText(decrypt(demandLetter.userOldEmail))
+                dialogBind.unionn.setText(decrypt(demandLetter.unionName))
+                if(demandLetter.status.equals("2")) {
+                    dialogBind.actionstaken.setText(decrypt(demandLetter.statusDescription))
+                }
+                else if(demandLetter.status.equals("3")) {
+                    dialogBind.actionLayout.setBackgroundDrawable(resources.getDrawable(R.drawable.rejectedcompbgtextstroke))
+                    dialogBind.actionstaken.setText(decrypt(demandLetter.statusDescription))
+                    dialogBind.actionstaken.setTextColor(Color.RED)
+                    dialogBind.actionstakenHeading.setTextColor(Color.RED)
+                }
+                else{
+                    dialogBind.actionLayout.visibility=View.GONE
+                }
 
                 dialogBind.emailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.putExtra(
                         android.content.Intent.EXTRA_EMAIL,
-                        arrayOf(demandLetter.userEmail)
+                        arrayOf(decrypt(demandLetter.userEmail))
                     )
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
@@ -161,7 +196,7 @@ class UserDemandFragment : Fragment() {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.putExtra(
                         android.content.Intent.EXTRA_EMAIL,
-                        arrayOf(demandLetter.userOldEmail)
+                        arrayOf(decrypt(demandLetter.userOldEmail))
                     )
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
@@ -194,15 +229,33 @@ class UserDemandFragment : Fragment() {
                 dialogBind.fabAccepted.setOnClickListener {
                     var sendEmail = SendEmail()
                     sendEmail.sendDemand(
-                        demandLetter.userName,
-                        demandLetter.userEmail,
-                        demandLetter.demandDistrict,
-                        demandLetter.demandNumber,
-                        demandLetter.demandSubject,
-                        demandLetter.demandDetails,
-                        demandLetter.unionName,
-                        demandLetter.imageUrl
+                        decrypt(demandLetter.userName),
+                        decrypt(demandLetter.userEmail),
+                        decrypt(demandLetter.demandDistrict),
+                        decrypt(demandLetter.demandNumber),
+                        decrypt(demandLetter.demandSubject),
+                        decrypt(demandLetter.demandDetails),
+                        decrypt(demandLetter.unionName),
+                        decrypt(demandLetter.imageUrl)
                     )
+                    var notificationid =
+                        FirebaseDatabase.getInstance().reference.child("Notifications")
+                            .push().key.toString()
+                    val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                    val notificationTime = format.format(Date())
+
+                    var notification = Notification(
+                        notificationid,
+                        demandLetter.demandSubject,
+                        encrypt(notificationTime),
+                        demandLetter.userId,
+                        demandLetter.demandId,
+                        demandLetter.userName,
+                        "1",
+                        demandLetter.demandNumber, "d"
+                    )
+                    FirebaseDatabase.getInstance().reference.child("Notifications")
+                        .child(notificationid).setValue(notification)
                     demref.child(demandLetter.demandId).child("status").setValue("1")
                     dialog.dismiss()
                 }
@@ -224,28 +277,88 @@ class UserDemandFragment : Fragment() {
                         if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
                             descriptionDialogBin.detail.error = "Cannot be Empty"
                         } else {
+                            descriptionDialog.dismiss()
                             FirebaseDatabase.getInstance().reference.child("Demand Letter")
                                 .child(demandLetter.demandId).child("statusDescription")
-                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .setValue(encrypt(descriptionDialogBin.detail.text.toString()))
                                 .addOnCompleteListener {
-                                    descriptionDialog.dismiss()
+                                    var notificationid =
+                                        FirebaseDatabase.getInstance().reference.child("Notifications")
+                                            .push().key.toString()
+                                    val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                                    val notificationTime = format.format(Date())
+
+                                    var notification = Notification(
+                                        notificationid,
+                                        demandLetter.demandSubject,
+                                        encrypt(notificationTime),
+                                        demandLetter.userId,
+                                        demandLetter.demandId,
+                                        demandLetter.userName,
+                                        "2",
+                                        demandLetter.demandNumber, "d"
+                                    )
+                                    FirebaseDatabase.getInstance().reference.child("Notifications")
+                                        .child(notificationid).setValue(notification)
+
                                 }
                             demref.child(demandLetter.demandId).child("status").setValue("2")
                         }
                     }
                 }
                     dialogBind.fabRejected.setOnClickListener {
-                        demref.child(demandLetter.demandId).child("status").setValue("3")
-                        dialog.dismiss()
+                        var descriptionDialog = Dialog(adminHomeScreen)
+                        var descriptionDialogBin =
+                            StatusDescriptionDialogBinding.inflate(layoutInflater)
+                        descriptionDialog.setContentView(descriptionDialogBin.root)
+                        descriptionDialog.show()
+                        descriptionDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                        descriptionDialog.setCancelable(false)
+                        descriptionDialogBin.cancel.setOnClickListener {
+                            descriptionDialog.dismiss()
+                        }
+
+                        descriptionDialogBin.detail.setHint("Details about Resolving Demand")
+                        descriptionDialogBin.btnDone.setOnClickListener {
+                            if (descriptionDialogBin.detail.text.toString().trim().length == 0) {
+                                descriptionDialogBin.detail.error = "Cannot be Empty"
+                            } else {
+                                descriptionDialog.dismiss()
+                                demref.child(demandLetter.demandId).child("status").setValue("3")
+                                FirebaseDatabase.getInstance().reference.child("Demand Letter")
+                                    .child(demandLetter.demandId).child("statusDescription")
+                                    .setValue(encrypt(descriptionDialogBin.detail.text.toString())).addOnCompleteListener {
+                                        var notificationid =
+                                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                                .push().key.toString()
+                                        val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                                        val notificationTime = format.format(Date())
+
+                                        var notification = Notification(
+                                            notificationid,
+                                            demandLetter.demandSubject,
+                                            encrypt(notificationTime),
+                                            demandLetter.userId,
+                                            demandLetter.demandId,
+                                            demandLetter.userName,
+                                            "3",
+                                            demandLetter.demandNumber, "d"
+                                        )
+                                        FirebaseDatabase.getInstance().reference.child("Notifications")
+                                            .child(notificationid).setValue(notification)
+                                    }
+                                dialog.dismiss()
+                            }
+                        }
                     }
                     dialogBind.image.setOnClickListener {
-                        val fileUri: Uri = demandLetter.imageUrl.toUri()
-
+                        var url=decrypt(demandLetter.imageUrl)
+                        val fileUri: Uri = url.toUri()
                         val intent = Intent(Intent.ACTION_VIEW)
                         intent.setDataAndType(fileUri, "image/*")
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
-
-                        startActivity(intent)
+                        adminHomeScreen.startActivity(intent)
                     }
                     dialog.show()
 

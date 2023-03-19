@@ -1,18 +1,18 @@
 package com.japnoor.anticorruption.admin
 
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.core.Context
-import com.japnoor.anticorruptionadmin.AdminHomeScreen
-import com.japnoor.anticorruptionadmin.DemandClick
-import com.japnoor.anticorruptionadmin.R
-import com.japnoor.anticorruptionadmin.UserDemandClick
+import com.japnoor.anticorruptionadmin.*
 import com.japnoor.anticorruptionadmin.databinding.ItemComlaintBinding
 import com.japnoor.anticorruptionadmin.databinding.ItemDemandBinding
 import com.japnoor.anticorruptionadmin.databinding.ItemDemandtBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class UserDemandAdapter(
     var context: AdminHomeScreen,
@@ -46,11 +46,11 @@ class UserDemandAdapter(
 
         }
 
-        holder.binding.demSubject.setText(demandletter[position].demandSubject)
-        holder.binding.demandDetails.setText(demandletter[position].demandDetails)
-        holder.binding.time.setText(demandletter[position].demandTime)
-        holder.binding.demNumber.setText(demandletter[position].demandNumber)
-        holder.binding.date.setText(demandletter[position].demandDate)
+        holder.binding.demSubject.setText(decrypt(demandletter[position].demandSubject))
+        holder.binding.demandDetails.setText(decrypt(demandletter[position].demandDetails))
+        holder.binding.time.setText(decrypt(demandletter[position].demandTime))
+        holder.binding.demNumber.setText(decrypt(demandletter[position].demandNumber))
+        holder.binding.date.setText(decrypt(demandletter[position].demandDate))
         holder.itemView.setOnClickListener{
             demandClick.onClick(demandletter[position])
         }
@@ -64,5 +64,15 @@ class UserDemandAdapter(
         demandletter=filteredList
         notifyDataSetChanged()
 
+    }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
     }
 }

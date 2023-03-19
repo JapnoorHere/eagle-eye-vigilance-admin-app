@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,8 @@ import com.japnoor.anticorruptionadmin.*
 import com.japnoor.anticorruptionadmin.databinding.ItemComlaintBinding
 import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class AdminResolvedAdapter(
     var context: AdminHomeScreen, var complaintsList: ArrayList<Complaints>,
@@ -45,16 +48,16 @@ class AdminResolvedAdapter(
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.tvAgainst.setText(complaintsList[position].complaintAgainst)
+        holder.binding.tvAgainst.setText(decrypt(complaintsList[position].complaintAgainst))
         holder.binding.upline.setBackgroundResource(R.drawable.resolvedback)
         holder.binding.downline.setBackgroundResource(R.drawable.resolvedback)
-        holder.binding.tvDistrict.setText(complaintsList[position].complaintDistrict)
-        holder.binding.tvSummary.setText(complaintsList[position].complaintDetails)
+        holder.binding.tvDistrict.setText(decrypt(complaintsList[position].complaintDistrict))
+        holder.binding.tvSummary.setText(decrypt(complaintsList[position].complaintDetails))
 
-        holder.binding.compNumber.setText(complaintsList[position].complaintNumber)
-        holder.binding.time.setText(complaintsList[position].complaintTime)
-        holder.binding.Date.setText(complaintsList[position].complaintDate)
-        holder.binding.userName.setText(complaintsList[position].userName)
+        holder.binding.compNumber.setText(decrypt(complaintsList[position].complaintNumber))
+        holder.binding.time.setText(decrypt(complaintsList[position].complaintTime))
+        holder.binding.Date.setText(decrypt(complaintsList[position].complaintDate))
+        holder.binding.userName.setText(decrypt(complaintsList[position].userName))
         holder.itemView.setOnClickListener {
             complaintClickedInterface.onComplaintsClicked(complaintsList[position])
         }
@@ -140,12 +143,12 @@ class AdminResolvedAdapter(
                             var intent = Intent(context, ComplaintChatActivity::class.java)
                             intent.putExtra("uid", complaintsList[position].userId)
                             intent.putExtra("cid", complaintsList[position].complaintId)
-                            intent.putExtra("name", complaintsList[position].userName)
+                            intent.putExtra("name", decrypt(complaintsList[position].userName))
                             intent.putExtra("profile", it.result.value.toString())
-                            intent.putExtra("cnumber", complaintsList[position].complaintNumber)
+                            intent.putExtra("cnumber", decrypt(complaintsList[position].complaintNumber))
                             intent.putExtra("type", "c")
                             intent.putExtra("status", complaintsList[position].status)
-                            intent.putExtra("against", complaintsList[position].complaintAgainst)
+                            intent.putExtra("against", decrypt(complaintsList[position].complaintAgainst))
                             context.startActivity(intent)
                         }
                 } else {
@@ -180,16 +183,16 @@ class AdminResolvedAdapter(
                             for (eachUser in snapshot.children) {
                                 var valueUser = eachUser.getValue(Users::class.java)
                                 if (valueUser?.userId.equals(complaintsList[position].userId)) {
-                                    dialogBinding.name.setText(valueUser?.name)
-                                    dialogBinding.email.setText(valueUser?.email)
-                                    dialogBinding.birthdate.setText(valueUser?.birthdate)
-                                    dialogBinding.date.setText(valueUser?.userDate)
+                                    dialogBinding.name.setText(decrypt(valueUser?.name.toString()))
+                                    dialogBinding.email.setText(decrypt(valueUser?.email.toString()))
+                                    dialogBinding.birthdate.setText(decrypt(valueUser?.birthdate.toString()))
+                                    dialogBinding.date.setText(decrypt(valueUser?.userDate.toString()))
 
                                     dialogBinding.cardEmail.setOnClickListener {
                                         val intent = Intent(Intent.ACTION_SEND)
                                         intent.putExtra(
                                             android.content.Intent.EXTRA_EMAIL,
-                                            arrayOf(valueUser?.email)
+                                            arrayOf(decrypt(valueUser?.email.toString()))
                                         );
                                         intent.type = "message/rfc822"
                                         context.startActivity(
@@ -303,7 +306,25 @@ class AdminResolvedAdapter(
         return complaintsList.size
     }
 
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
 
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 
     fun FilteredList(filteredList: ArrayList<Complaints>) {
         complaintsList=filteredList

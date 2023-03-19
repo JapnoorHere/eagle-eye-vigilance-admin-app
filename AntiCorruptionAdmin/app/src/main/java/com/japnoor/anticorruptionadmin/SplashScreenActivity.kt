@@ -6,6 +6,7 @@ import android.content.SharedPreferences.Editor
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -14,6 +15,8 @@ import com.google.firebase.database.*
 import com.google.protobuf.Value
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.ActivitySplashScreennBinding
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class SplashScreenActivity : AppCompatActivity() {
 
@@ -29,7 +32,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
         navController=findNavController(R.id.navController)
 
-
-
     }
+
+
 }

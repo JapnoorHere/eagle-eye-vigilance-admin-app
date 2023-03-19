@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,11 @@ import com.japnoor.anticorruptionadmin.databinding.ItemDemandBinding
 import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.databinding.StatusDescriptionDialogBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import java.text.SimpleDateFormat
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+import kotlin.collections.ArrayList
 
 class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter: ArrayList<DemandLetter>, var demandClick: DemandClick)  : RecyclerView.Adapter<AdminRejectedDemandAdapter.ViewHolder>(){
     class ViewHolder(var binding : ItemDemandBinding) : RecyclerView.ViewHolder(binding.root){
@@ -40,12 +46,12 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.upline.setBackgroundResource(R.drawable.rejectedback)
         holder.binding.downline.setBackgroundResource(R.drawable.rejectedback)
-        holder.binding.tvAgainst.setText(demandletter[position].demandSubject)
-        holder.binding.tvSummary.setText(demandletter[position].demandDetails)
-        holder.binding.time.setText(demandletter[position].demandTime)
-        holder.binding.compNumber.setText(demandletter[position].demandNumber)
-        holder.binding.Date.setText(demandletter[position].demandDate)
-        holder.binding.userName.setText(demandletter[position].userName)
+        holder.binding.tvAgainst.setText(decrypt(demandletter[position].demandSubject))
+        holder.binding.tvSummary.setText(decrypt(demandletter[position].demandDetails))
+        holder.binding.time.setText(decrypt(demandletter[position].demandTime))
+        holder.binding.compNumber.setText(decrypt(demandletter[position].demandNumber))
+        holder.binding.Date.setText(decrypt(demandletter[position].demandDate))
+        holder.binding.userName.setText(decrypt(demandletter[position].userName))
 
         holder.itemView.setOnClickListener{
             demandClick.onDemandClick(demandletter[position])
@@ -68,15 +74,32 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
                 if (isConnected) {
                     var sendEmail = SendEmail()
                     sendEmail.sendDemand(
-                        demandletter[position].userName,
-                        demandletter[position].userEmail,
-                        demandletter[position].demandDistrict,
-                        demandletter[position].demandNumber,
-                        demandletter[position].demandSubject,
-                        demandletter[position].demandDetails,
-                        demandletter[position].unionName,
-                        demandletter[position].imageUrl
+                        decrypt(demandletter[position].userName),
+                        decrypt(demandletter[position].userEmail),
+                        decrypt(demandletter[position].demandNumber),
+                        decrypt(demandletter[position].demandDistrict),
+                        decrypt(demandletter[position].demandSubject),
+                        decrypt(demandletter[position].demandDetails),
+                        decrypt(demandletter[position].unionName),
+                        decrypt(demandletter[position].imageUrl)
                     )
+                    var notificationid =
+                        FirebaseDatabase.getInstance().reference.child("Notifications")
+                            .push().key.toString()
+                    val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                    val notificationTime = format.format(Date())
+                    var notification = Notification(
+                        notificationid,
+                        demandletter[position].demandSubject,
+                        encrypt(notificationTime),
+                        demandletter[position].userId,
+                        demandletter[position].demandId,
+                        demandletter[position].userName,
+                        "1",
+                        demandletter[position].demandNumber, "d"
+                    )
+                    FirebaseDatabase.getInstance().reference.child("Notifications")
+                        .child(notificationid).setValue(notification)
                     bottomSheet.dismiss()
                     FirebaseDatabase.getInstance().reference.child("Demand Letter")
                         .child(demandletter[position].demandId).child("status").setValue("1")
@@ -109,7 +132,7 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
                             descriptionDialogBin.detail.error = "Cannot be Empty"
                         } else {
                             FirebaseDatabase.getInstance().reference.child("Demand Letter").child(demandletter[position].demandId).child("statusDescription")
-                                .setValue(descriptionDialogBin.detail.text.toString())
+                                .setValue(encrypt(descriptionDialogBin.detail.text.toString()))
                                 .addOnCompleteListener {
                                     descriptionDialog.dismiss()
                                 }
@@ -117,6 +140,23 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
                             FirebaseDatabase.getInstance().reference.child("Demand Letter")
                                 .child(demandletter[position].demandId).child("status")
                                 .setValue("2")
+                            var notificationid =
+                                FirebaseDatabase.getInstance().reference.child("Notifications")
+                                    .push().key.toString()
+                            val format = SimpleDateFormat("dd/MM/yyyy-HH:mm", Locale.getDefault())
+                            val notificationTime = format.format(Date())
+                            var notification = Notification(
+                                notificationid,
+                                demandletter[position].demandSubject,
+                                encrypt(notificationTime),
+                                demandletter[position].userId,
+                                demandletter[position].demandId,
+                                demandletter[position].userName,
+                                "2",
+                                demandletter[position].demandNumber, "d"
+                            )
+                            FirebaseDatabase.getInstance().reference.child("Notifications")
+                                .child(notificationid).setValue(notification)
                         }
                     }
                 }
@@ -188,12 +228,12 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
                             var intent = Intent(context, ComplaintChatActivity::class.java)
                             intent.putExtra("uid", demandletter[position].userId)
                             intent.putExtra("cid", demandletter[position].demandId)
-                            intent.putExtra("name", demandletter[position].userName)
+                            intent.putExtra("name", decrypt(demandletter[position].userName))
                             intent.putExtra("profile", it.result.value.toString())
-                            intent.putExtra("cnumber", demandletter[position].demandNumber)
+                            intent.putExtra("cnumber", decrypt(demandletter[position].demandNumber))
                             intent.putExtra("type", "d")
                             intent.putExtra("status", demandletter[position].status)
-                            intent.putExtra("against", demandletter[position].demandSubject)
+                            intent.putExtra("against", decrypt(demandletter[position].demandSubject))
                             context.startActivity(intent)
                         }
                 }
@@ -227,16 +267,16 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
                                 for (eachUser in snapshot.children) {
                                     var valueUser = eachUser.getValue(Users::class.java)
                                     if (valueUser?.userId.equals(demandletter[position].userId)) {
-                                        dialogBinding.name.setText(valueUser?.name)
-                                        dialogBinding.email.setText(valueUser?.email)
-                                        dialogBinding.birthdate.setText(valueUser?.birthdate)
-                                        dialogBinding.date.setText(valueUser?.userDate)
+                                        dialogBinding.name.setText(decrypt(valueUser?.name.toString()))
+                                        dialogBinding.email.setText(decrypt(valueUser?.email.toString()))
+                                        dialogBinding.birthdate.setText(decrypt(valueUser?.birthdate.toString()))
+                                        dialogBinding.date.setText(decrypt(valueUser?.userDate.toString()))
 
                                         dialogBinding.cardEmail.setOnClickListener {
                                             val intent = Intent(Intent.ACTION_SEND)
                                             intent.putExtra(
                                                 android.content.Intent.EXTRA_EMAIL,
-                                                arrayOf(valueUser?.email)
+                                                arrayOf(decrypt(valueUser?.email.toString()))
                                             );
                                             intent.type = "message/rfc822"
                                             context.startActivity(
@@ -355,5 +395,24 @@ class AdminRejectedDemandAdapter (var context: AdminHomeScreen,var demandletter:
         demandletter=filteredList
         notifyDataSetChanged()
 
+    }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
     }
 }

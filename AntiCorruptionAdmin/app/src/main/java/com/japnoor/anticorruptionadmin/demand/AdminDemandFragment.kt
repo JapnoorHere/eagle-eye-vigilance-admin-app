@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -22,6 +23,8 @@ import com.google.firebase.database.ValueEventListener
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminDemandBinding
 import com.japnoor.anticorruptionadmin.databinding.PasscodeDialogBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 
 private const val ARG_PARAM1 = "param1"
@@ -37,6 +40,27 @@ class AdminDemandFragment : Fragment() {
     lateinit var editor: SharedPreferences.Editor
     lateinit var editorDetails: SharedPreferences.Editor
 
+
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -49,6 +73,8 @@ class AdminDemandFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+
         adminHomeScreen = activity as AdminHomeScreen
 
         sharedPreferencesDetails =
@@ -119,11 +145,11 @@ class AdminDemandFragment : Fragment() {
                         if ((dem?.status.equals(""))) {
                             binding.demLL.visibility = View.VISIBLE
                             binding.recent.visibility = View.VISIBLE
-                            binding.demSubject.setText(dem?.demandSubject)
-                            binding.date.setText(dem?.demandDate)
-                            binding.time.setText(dem?.demandTime)
-                            binding.demNumber.setText(dem?.demandNumber)
-                            binding.demandDetails.setText(dem?.demandDetails)
+                            binding.demSubject.setText(decrypt(dem?.demandSubject.toString()))
+                            binding.date.setText(decrypt(dem?.demandDate.toString()))
+                            binding.time.setText(decrypt(dem?.demandTime.toString()))
+                            binding.demNumber.setText(decrypt(dem?.demandNumber.toString()))
+                            binding.demandDetails.setText(decrypt(dem?.demandDetails.toString()))
                         }
                     }
                 }
@@ -227,7 +253,7 @@ class AdminDemandFragment : Fragment() {
                         dialogBinding.progressbar.visibility = View.VISIBLE
                         FirebaseDatabase.getInstance().reference.child("Admin")
                             .child("adminPasscode")
-                            .setValue(dialogBinding.etPassword.text.toString())
+                            .setValue(encrypt(dialogBinding.etPassword.text.toString()))
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     editorDetails.putString(

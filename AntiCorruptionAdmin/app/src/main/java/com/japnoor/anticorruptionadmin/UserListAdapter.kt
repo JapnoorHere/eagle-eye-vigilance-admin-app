@@ -1,8 +1,10 @@
 package com.japnoor.anticorruptionadmin
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -13,6 +15,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.ItemUserBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<Users>, var clickInterface: UsersClick) : RecyclerView.Adapter<UserListAdapter.ViewHolder>() {
     class ViewHolder(var binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -26,20 +30,27 @@ class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<User
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.binding.name.setText(userList[position].name)
-        holder.binding.email.setText(userList[position].email)
-        holder.binding.date.setText(userList[position].userDate)
+        holder.binding.name.setText(decrypt(userList[position].name))
+        holder.binding.email.setText(decrypt(userList[position].email))
+        holder.binding.date.setText(decrypt(userList[position].userDate))
         holder.itemView.setOnClickListener{
-            val connectivityManager =
-                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-            val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
-            if (isConnected) {
-                clickInterface.onUsersClick(userList[position])
-            }
-            else{
-                Toast.makeText(context,"Check your internet connection please", Toast.LENGTH_LONG).show()
+            var bottomSheet = BottomSheetDialog(context)
+            bottomSheet.setContentView(R.layout.user_menu_hold)
+            bottomSheet.show()
+            var userProfile=bottomSheet.findViewById<CardView>(R.id.userProfile)
+            var chat=bottomSheet.findViewById<CardView>(R.id.chat)
 
+            chat?.setOnClickListener {
+                bottomSheet.dismiss()
+                var intent = Intent(context,ChatActivity::class.java)
+                intent.putExtra("uid",userList[position].userId)
+                intent.putExtra("name",decrypt(userList[position].name))
+                intent.putExtra("profile",userList[position].profileValue)
+                context.startActivity(intent)
+            }
+            userProfile?.setOnClickListener {
+                bottomSheet.dismiss()
+                clickInterface.onUsersClick(userList[position])
             }
         }
         when (userList[position].profileValue) {
@@ -63,5 +74,23 @@ class UserListAdapter(var context : AdminHomeScreen,var userList: ArrayList<User
         notifyDataSetChanged()
 
     }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
 
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 }

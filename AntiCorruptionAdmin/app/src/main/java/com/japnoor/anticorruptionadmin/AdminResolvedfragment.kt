@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.*
 import android.webkit.MimeTypeMap
 import androidx.activity.result.ActivityResultLauncher
@@ -23,6 +24,8 @@ import com.japnoor.anticorruptionadmin.databinding.EditComplaintDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminResolvedfragmentBinding
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminTotalComplaintsBinding
 import java.util.ArrayList
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 
 private const val ARG_PARAM1 = "param1"
@@ -43,6 +46,8 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
     lateinit var firebaseStorage: FirebaseStorage
     lateinit var storegeref: StorageReference
 
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
 
     lateinit var activityResulLauncher: ActivityResultLauncher<Intent>
     lateinit var activityResulLauncher2: ActivityResultLauncher<Intent>
@@ -52,7 +57,19 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
     var videoUrl: String = ""
     var videoUri: Uri? = null
 
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adminHomeScreen = activity as AdminHomeScreen
@@ -67,6 +84,10 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+
         binding = FragmentAdminResolvedfragmentBinding.inflate(layoutInflater, container, false)
         firebaseStorage = FirebaseStorage.getInstance()
         storegeref = firebaseStorage.reference
@@ -110,14 +131,14 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = ArrayList<Complaints>()
                             for (item in complaintsList){
-                                if(item.complaintAgainst.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.complaintNumber.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.complaintDate.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.complaintTime.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.userName.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.userEmail.toLowerCase().contains(s.toString().toLowerCase())
-                                    || item.complaintDistrict.toLowerCase().contains(s.toString().toLowerCase())
+                                if(decrypt(item.complaintAgainst).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.complaintNumber).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.complaintDate).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.complaintTime).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.status).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.userName).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.userEmail).toLowerCase().contains(s.toString().toLowerCase())
+                                    || decrypt(item.complaintDistrict).toLowerCase().contains(s.toString().toLowerCase())
                                 )
                                     filteredList.add(item)
                             }
@@ -145,28 +166,28 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                 )
                 dialogBind.stamp.visibility=View.VISIBLE
                 dialogBind.stamp.setImageResource(R.drawable.resolved_stamp)
-                dialogBind.name.setText(complaints.userName)
-                dialogBind.email.setText(complaints.userEmail)
-                dialogBind.date.setText(complaints.complaintDate)
-                dialogBind.tvDept.setText(complaints.complaintDept)
-                dialogBind.actionstaken.setText(complaints.statusDescription)
-                dialogBind.tvLoc.setText(complaints.complaintLoc)
-                dialogBind.tvCategory.setText(complaints.complaintCategory)
-                dialogBind.tvAgainst.setText(complaints.complaintAgainst)
-                dialogBind.tvDetails.setText(complaints.complaintDetails)
-                dialogBind.tvDistrict.setText(complaints.complaintDistrict)
-                dialogBind.oldemail.setText(complaints.userOldEmail)
+                dialogBind.name.setText(decrypt(complaints.userName))
+                dialogBind.email.setText(decrypt(complaints.userEmail))
+                dialogBind.date.setText(decrypt(complaints.complaintDate))
+                dialogBind.tvDept.setText(decrypt(complaints.complaintDept))
+                dialogBind.actionstaken.setText(decrypt(complaints.statusDescription))
+                dialogBind.tvLoc.setText(decrypt(complaints.complaintLoc))
+                dialogBind.tvCategory.setText(decrypt(complaints.complaintCategory))
+                dialogBind.tvAgainst.setText(decrypt(complaints.complaintAgainst))
+                dialogBind.tvDetails.setText(decrypt(complaints.complaintDetails))
+                dialogBind.tvDistrict.setText(decrypt(complaints.complaintDistrict))
+                dialogBind.oldemail.setText(decrypt(complaints.userOldEmail))
 
                 dialogBind.emailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( complaints.userEmail ));
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( decrypt(complaints.userEmail) ));
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
                 dialogBind.oldemailbtn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( complaints.userOldEmail ));
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( decrypt(complaints.userOldEmail) ));
                     intent.type = "message/rfc822"
                     startActivity(Intent.createChooser(intent, "Select email"))
                 }
@@ -185,15 +206,16 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                 dialogBind.fabRejected.visibility=View.GONE
 
                 dialogBind.audio.setOnClickListener {
-                    val fileUri: Uri = complaints.audioUrl.toUri()
+                    var url=decrypt(complaints.audioUrl)
+                    val fileUri: Uri = url.toUri()
                     var intent=Intent(adminHomeScreen, AudioActivity::class.java)
                     intent.putExtra("audio",fileUri.toString())
                     adminHomeScreen.startActivity(intent)
                 }
 
                 dialogBind.image.setOnClickListener {
-                    val fileUri: Uri = complaints.imageUrl.toUri()
-
+                    var url=decrypt(complaints.imageUrl)
+                    val fileUri: Uri = url.toUri()
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.setDataAndType(fileUri, "image/*")
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) //DO NOT FORGET THIS EVER
@@ -202,8 +224,8 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                 }
 
                 dialogBind.video.setOnClickListener {
-                    val fileUri: Uri = complaints.videoUrl.toUri()
-
+                    var url=decrypt(complaints.videoUrl)
+                    val fileUri: Uri = url.toUri()
                     var intent = Intent(adminHomeScreen, VideoActivity::class.java)
                     intent.putExtra("video", fileUri.toString())
                     adminHomeScreen.startActivity(intent)

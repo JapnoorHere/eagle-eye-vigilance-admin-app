@@ -2,12 +2,14 @@ package com.japnoor.anticorruptionadmin
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
@@ -25,6 +27,8 @@ import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
 import java.text.SimpleDateFormat
 import java.util.Date
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class ComplaintChatActivity : AppCompatActivity() {
     lateinit var binding: ActivityChatBinding
@@ -41,10 +45,27 @@ class ComplaintChatActivity : AppCompatActivity() {
     var type : String? = null
     var status : String = ""
     var against : String = ""
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
+
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         senderUid = FirebaseAuth.getInstance().currentUser?.uid.toString()
@@ -140,10 +161,24 @@ class ComplaintChatActivity : AppCompatActivity() {
             dialog.setContentView(dialogB.root)
             dialog.window?.setLayout(
                 WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT
+                WindowManager.LayoutParams.WRAP_CONTENT
             )
             dialog.show()
+            dialogB.cardComplaint.visibility=View.GONE
+            dialogB.cardDemand.visibility=View.GONE
             dialogB.unblocktime.visibility=View.GONE
+            dialogB.cardEmail.setOnClickListener {
+                FirebaseDatabase.getInstance().reference.child("Users").child(recieverUid)
+                    .child("email").get().addOnCompleteListener {
+                        val intent = Intent(Intent.ACTION_SEND)
+                        intent.putExtra(
+                            android.content.Intent.EXTRA_EMAIL,
+                            arrayOf(decrypt(it.result.value.toString()))
+                        )
+                        intent.type = "message/rfc822"
+                        startActivity(Intent.createChooser(intent, "Select email"))
+                    }
+            }
             FirebaseDatabase.getInstance().reference.child("Users").child(recieverUid)
                 .child("profileValue").get().addOnCompleteListener {
                     when (it.result.value.toString()) {
@@ -159,23 +194,23 @@ class ComplaintChatActivity : AppCompatActivity() {
                 }
             FirebaseDatabase.getInstance().reference.child("Users").child(recieverUid)
                 .child("name").get().addOnCompleteListener {
-                    dialogB.name.setText(it.result.value.toString())
+                    dialogB.name.setText(decrypt(it.result.value.toString()))
                 }
 
             FirebaseDatabase.getInstance().reference.child("Users").child(recieverUid)
                 .child("email").get().addOnCompleteListener {
-                    dialogB.email.setText(it.result.value.toString())
+                    dialogB.email.setText(decrypt(it.result.value.toString()))
                 }
 
 
             FirebaseDatabase.getInstance().reference.child("Users").child(recieverUid)
                 .child("birthdate").get().addOnCompleteListener {
-                    dialogB.birthdate.setText(it.result.value.toString())
+                    dialogB.birthdate.setText(decrypt(it.result.value.toString()))
                 }
 
             FirebaseDatabase.getInstance().reference.child("Users").child(recieverUid)
                 .child("userDate").get().addOnCompleteListener {
-                    dialogB.date.setText(it.result.value.toString())
+                    dialogB.date.setText(decrypt(it.result.value.toString()))
                 }
             var complaintCount = 0
             var demandCount = 0
@@ -353,15 +388,14 @@ class ComplaintChatActivity : AppCompatActivity() {
                 val time = formatter.format(dateTime)
 
                 var chats = Chat(
-                    binding.etMessage.text.toString().trim(),
-                    time.toString(),
+                    encrypt(binding.etMessage.text.toString().trim()),
+                    encrypt(time.toString()),
                     FirebaseAuth.getInstance().currentUser?.uid.toString()
                 )
                 FirebaseDatabase.getInstance().reference.child("ComplaintChats").child(senderRoom)
-                    .child("messages")
-                    .push().setValue(chats).addOnCompleteListener {
-                        FirebaseDatabase.getInstance().reference.child("ComplaintChats")
-                            .child(recieverRoom).child("messages")
+                    .child("messages").push().setValue(chats).addOnCompleteListener {
+                        FirebaseDatabase.getInstance().reference.child("ComplaintChats").child(recieverRoom)
+                            .child("messages")
                             .push().setValue(chats)
                     }
                 binding.etMessage.text.clear()

@@ -1,9 +1,12 @@
 package com.japnoor.anticorruptionadmin
 
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.japnoor.anticorruptionadmin.databinding.ItemComplaintBinding
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class UserComplaintAdapter(var context: AdminHomeScreen, var complaintsList: ArrayList<Complaints>,var userComplaintClick: UserComplaintClick)  : RecyclerView.Adapter<UserComplaintAdapter.ViewHolder>() {
 
@@ -23,12 +26,12 @@ class UserComplaintAdapter(var context: AdminHomeScreen, var complaintsList: Arr
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.compAgainst.setText(complaintsList[position].complaintAgainst)
-        holder.binding.tvDistrict.setText(complaintsList[position].complaintDistrict)
-        holder.binding.compdetails.setText(complaintsList[position].complaintDetails)
-        holder.binding.date.setText(complaintsList[position].complaintDate)
-        holder.binding.time.setText(complaintsList[position].complaintTime)
-        holder.binding.complaintNumber.setText(complaintsList[position].complaintNumber)
+        holder.binding.compAgainst.setText(decrypt(complaintsList[position].complaintAgainst))
+        holder.binding.tvDistrict.setText(decrypt(complaintsList[position].complaintDistrict))
+        holder.binding.compdetails.setText(decrypt(complaintsList[position].complaintDetails))
+        holder.binding.date.setText(decrypt(complaintsList[position].complaintDate))
+        holder.binding.time.setText(decrypt(complaintsList[position].complaintTime))
+        holder.binding.complaintNumber.setText(decrypt(complaintsList[position].complaintNumber))
         when (complaintsList[position].status) {
             "1" -> {
                 holder.binding.rightline.setBackgroundResource(R.drawable.acceptedback)
@@ -69,5 +72,14 @@ class UserComplaintAdapter(var context: AdminHomeScreen, var complaintsList: Arr
         complaintsList=filteredList
         notifyDataSetChanged()
     }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
 
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
 }

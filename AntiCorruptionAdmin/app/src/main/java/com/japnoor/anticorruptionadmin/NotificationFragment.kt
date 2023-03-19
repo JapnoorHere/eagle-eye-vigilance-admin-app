@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -22,6 +23,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.japnoor.anticorruptionadmin.databinding.FragmentNotificationBinding
 import com.japnoor.anticorruptionadmin.databinding.PasscodeDialogBinding
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -181,7 +184,7 @@ class NotificationFragment : Fragment(), NotificationClick {
                         dialogBinding.progressbar.visibility = View.VISIBLE
                         FirebaseDatabase.getInstance().reference.child("Admin")
                             .child("adminPasscode")
-                            .setValue(dialogBinding.etPassword.text.toString())
+                            .setValue(encrypt(dialogBinding.etPassword.text.toString()))
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     editorDetails.putString(
@@ -213,5 +216,23 @@ class NotificationFragment : Fragment(), NotificationClick {
         }
         return super.onOptionsItemSelected(item)
     }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
 
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 }

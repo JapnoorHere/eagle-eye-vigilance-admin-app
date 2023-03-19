@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +26,8 @@ import com.google.firebase.database.ValueEventListener
 import com.hanks.passcodeview.PasscodeView
 import com.japnoor.anticorruptionadmin.databinding.FragmentPasscodeBinding
 import com.japnoor.anticorruptionadmin.databinding.PasscodeDialogBinding
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -69,6 +72,9 @@ class PasscodeFragment : Fragment() {
 
             override fun onSuccess(number: String?) {
                 var intent= Intent(splashScreenActivity,AdminHomeScreen::class.java)
+                intent.putExtra("adminEmail", adminEmail)
+                intent.putExtra("adminPass", adminPass)
+                intent.putExtra("adminPasscode", adminPasscode)
                 splashScreenActivity.startActivity(intent)
                 splashScreenActivity.finish()
             }
@@ -135,7 +141,7 @@ class PasscodeFragment : Fragment() {
                     if(isConnected){
                         dialogBinding.btnSignup.visibility = View.GONE
                         dialogBinding.progressbar.visibility = View.VISIBLE
-                        FirebaseDatabase.getInstance().reference.child("Admin").child("adminPasscode").setValue(dialogBinding.etPassword.text.toString()).addOnCompleteListener {
+                        FirebaseDatabase.getInstance().reference.child("Admin").child("adminPasscode").setValue(encrypt(dialogBinding.etPassword.text.toString())).addOnCompleteListener {
                            if(it.isSuccessful) {
                                editor.putString("adminPasscode",dialogBinding.etPassword.text.toString())
                                editor.apply()
@@ -166,5 +172,23 @@ class PasscodeFragment : Fragment() {
 
         return binding.root
     }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
 
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
 }

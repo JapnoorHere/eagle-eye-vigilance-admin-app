@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,8 @@ import com.japnoor.anticorruptionadmin.databinding.ItemComlaintBinding
 import com.japnoor.anticorruptionadmin.databinding.ItemDemandBinding
 import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 class AdminTotalDemandAdapter (var context: AdminHomeScreen,var demandletter: ArrayList<DemandLetter>, var demandClick: DemandClick)  : RecyclerView.Adapter<AdminTotalDemandAdapter.ViewHolder>(){
     class ViewHolder(var binding : ItemDemandBinding) : RecyclerView.ViewHolder(binding.root){
@@ -54,12 +57,12 @@ class AdminTotalDemandAdapter (var context: AdminHomeScreen,var demandletter: Ar
 
         }
 
-        holder.binding.tvAgainst.setText(demandletter[position].demandSubject)
-        holder.binding.tvSummary.setText(demandletter[position].demandDetails)
-        holder.binding.time.setText(demandletter[position].demandTime)
-        holder.binding.compNumber.setText(demandletter[position].demandNumber)
-        holder.binding.Date.setText(demandletter[position].demandDate)
-        holder.binding.userName.setText(demandletter[position].userName)
+        holder.binding.tvAgainst.setText(decrypt(demandletter[position].demandSubject))
+        holder.binding.tvSummary.setText(decrypt(demandletter[position].demandDetails))
+        holder.binding.time.setText(decrypt(demandletter[position].demandTime))
+        holder.binding.compNumber.setText(decrypt(demandletter[position].demandNumber))
+        holder.binding.Date.setText(decrypt(demandletter[position].demandDate))
+        holder.binding.userName.setText(decrypt(demandletter[position].userName))
         holder.itemView.setOnClickListener{
             demandClick.onDemandClick(demandletter[position])
         }
@@ -94,18 +97,18 @@ class AdminTotalDemandAdapter (var context: AdminHomeScreen,var demandletter: Ar
                     FirebaseDatabase.getInstance().reference.child("Users")
                         .child(demandletter[position].userId).child("profileValue").get()
                         .addOnCompleteListener {
-                            println("profile" + it.result.value.toString())
-                            var intent = Intent(context, ComplaintChatActivity::class.java)
-                            intent.putExtra("uid", demandletter[position].userId)
-                            intent.putExtra("cid", demandletter[position].demandId)
-                            intent.putExtra("name", demandletter[position].userName)
-                            intent.putExtra("profile", it.result.value.toString())
-                            intent.putExtra("cnumber", demandletter[position].demandNumber)
-                            intent.putExtra("type", "d")
-                            intent.putExtra("status", demandletter[position].status)
-                            intent.putExtra("against", demandletter[position].demandSubject)
-                            context.startActivity(intent)
-                        }
+                    println("profile" + it.result.value.toString())
+                    var intent = Intent(context, ComplaintChatActivity::class.java)
+                    intent.putExtra("uid", demandletter[position].userId)
+                    intent.putExtra("cid", demandletter[position].demandId)
+                    intent.putExtra("name", decrypt(demandletter[position].userName))
+                    intent.putExtra("profile", it.result.value.toString())
+                    intent.putExtra("cnumber", decrypt(demandletter[position].demandNumber))
+                    intent.putExtra("type", "d")
+                    intent.putExtra("status", demandletter[position].status)
+                    intent.putExtra("against", decrypt(demandletter[position].demandSubject))
+                    context.startActivity(intent)
+                }
                 }
                 else{
                     Toast.makeText(context,"Check your internet connection please", Toast.LENGTH_LONG).show()
@@ -153,14 +156,14 @@ class AdminTotalDemandAdapter (var context: AdminHomeScreen,var demandletter: Ar
                         for(eachUser in snapshot.children){
                             var valueUser=eachUser.getValue(Users::class.java)
                             if(valueUser?.userId.equals(demandletter[position].userId)){
-                                dialogBinding.name.setText(valueUser?.name)
-                                dialogBinding.email.setText(valueUser?.email)
-                                dialogBinding.birthdate.setText(valueUser?.birthdate)
-                                dialogBinding.date.setText(valueUser?.userDate)
+                                dialogBinding.name.setText(decrypt(valueUser?.name.toString()))
+                                dialogBinding.email.setText(decrypt(valueUser?.email.toString()))
+                                dialogBinding.birthdate.setText(decrypt(valueUser?.birthdate.toString()))
+                                dialogBinding.date.setText(decrypt(valueUser?.userDate.toString()))
 
                                 dialogBinding.cardEmail.setOnClickListener {
                                     val intent = Intent(Intent.ACTION_SEND)
-                                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( valueUser?.email ));
+                                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf( decrypt(valueUser?.email.toString()) ));
                                     intent.type = "message/rfc822"
                                     context.startActivity(Intent.createChooser(intent, "Select email"))
                                 }
@@ -248,6 +251,18 @@ class AdminTotalDemandAdapter (var context: AdminHomeScreen,var demandletter: Ar
     fun FilteredList(filteredList: ArrayList<DemandLetter>) {
         demandletter=filteredList
         notifyDataSetChanged()
-
     }
+
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+       var encryptionKey=forgot.key()
+       var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+
+
 }

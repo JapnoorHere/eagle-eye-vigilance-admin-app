@@ -2,6 +2,7 @@ package com.japnoor.anticorruptionadmin
 
 import android.content.Intent
 import android.graphics.Color
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.cardview.widget.CardView
@@ -10,6 +11,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.japnoor.anticorruptionadmin.R
 import com.japnoor.anticorruptionadmin.databinding.ItemUserBinding
 import com.japnoor.anticorruptionadmin.databinding.ItemUserBlockedBinding
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 
 class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<Users>, var clickInterface: UsersClick) : RecyclerView.Adapter<BlockedUserAdapter.ViewHolder>() {
@@ -24,9 +27,9 @@ class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<U
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.binding.name.setText(userList[position].name)
-        holder.binding.email.setText(userList[position].email)
-        holder.binding.date.setText(userList[position].userDate)
+        holder.binding.name.setText(decrypt(userList[position].name))
+        holder.binding.email.setText(decrypt(userList[position].email))
+        holder.binding.date.setText(decrypt(userList[position].userDate))
         holder.itemView.setOnClickListener{
             var bottomSheet = BottomSheetDialog(context)
             bottomSheet.setContentView(R.layout.user_menu_hold)
@@ -38,7 +41,7 @@ class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<U
                 bottomSheet.dismiss()
                 var intent = Intent(context,ChatActivity::class.java)
                 intent.putExtra("uid",userList[position].userId)
-                intent.putExtra("name",userList[position].name)
+                intent.putExtra("name",decrypt(userList[position].name))
                 intent.putExtra("profile",userList[position].profileValue)
                 context.startActivity(intent)
             }
@@ -66,5 +69,24 @@ class BlockedUserAdapter(var context : AdminHomeScreen,var userList: ArrayList<U
         userList=filteredList
         notifyDataSetChanged()
 
+    }
+    private fun decrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+    private fun encrypt(input: String): String {
+        var forgot = ForogotPasscode()
+        var encryptionKey=forgot.key()
+        var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
     }
 }

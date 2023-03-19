@@ -9,6 +9,8 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
+import android.util.Base64.encodeToString
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -18,6 +20,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.japnoor.anticorruptionadmin.databinding.FragmentAdminHomeBinding
 import com.japnoor.anticorruptionadmin.databinding.PasscodeDialogBinding
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -33,7 +38,22 @@ class AdminHomeFragment : Fragment() {
     lateinit var sharedPreferencesDetails: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
     lateinit var editorDetails: SharedPreferences.Editor
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
 
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
+
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -47,7 +67,9 @@ class AdminHomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
         binding = FragmentAdminHomeBinding.inflate(layoutInflater, container, false)
         adminHomeScreen = activity as AdminHomeScreen
 
@@ -117,11 +139,11 @@ class AdminHomeFragment : Fragment() {
                     if ((comp?.status.equals(""))) {
                         binding.compLL.visibility=View.VISIBLE
                         binding.recent.visibility=View.VISIBLE
-                        binding.compAgainst.setText(comp?.complaintAgainst)
-                        binding.date.setText(comp?.complaintDate)
-                        binding.time.setText(comp?.complaintTime)
-                        binding.complaintNumber.setText(comp?.complaintNumber)
-                        binding.tvDistrict.setText(comp?.complaintDistrict)
+                        binding.compAgainst.setText(decrypt(comp?.complaintAgainst.toString()))
+                        binding.date.setText(decrypt(comp?.complaintDate.toString()))
+                        binding.time.setText(decrypt(comp?.complaintTime.toString()))
+                        binding.complaintNumber.setText(decrypt(comp?.complaintNumber.toString()))
+                        binding.tvDistrict.setText(decrypt(comp?.complaintDistrict.toString()))
                     }
                 }
             }
@@ -138,11 +160,11 @@ class AdminHomeFragment : Fragment() {
                     if (notfy!=null) {
                         binding.cardnotifi.visibility=View.VISIBLE
                         binding.recentnotfi.visibility=View.VISIBLE
-                        binding.notificompAgainst.setText(notfy.complaintAgainst)
-                        binding.notifitime.setText(notfy.notificationTime)
-                        binding.notificomplaintNumber.setText(notfy.complaintNumber)
-                        binding.msg.setText(notfy.notificationMsg)
-                        binding.name.setText(notfy.userName)
+                        binding.notificompAgainst.setText(decrypt(notfy.complaintAgainst))
+                        binding.notifitime.setText(decrypt(notfy.notificationTime))
+                        binding.notificomplaintNumber.setText(decrypt(notfy.complaintNumber))
+                        binding.msg.setText(decrypt(notfy.notificationMsg))
+                        binding.name.setText(decrypt(notfy.userName))
 
 
                         when(notfy.notificationType){
@@ -155,13 +177,13 @@ class AdminHomeFragment : Fragment() {
                                 binding.aga.setText("Subject")
                             }
                             "b"->{
-                                binding.compnum.setText("User Blocked")
+                                binding.compnum.setText("User Query")
                                 binding.complaintNumber.visibility=View.GONE
                                 binding.aga.visibility=View.GONE
                                 binding.compAgainst.visibility=View.GONE
-                                binding.msg.setText(notfy.notificationMsg)
-                                binding.time.setText(notfy.notificationTime)
-                                binding.name.setText(notfy.userName)
+                                binding.msg.setText(decrypt(notfy.notificationMsg))
+                                binding.time.setText(decrypt(notfy.notificationTime))
+                                binding.name.setText(decrypt(notfy.userName))
                             }
 
                         }
@@ -180,12 +202,12 @@ class AdminHomeFragment : Fragment() {
                                                 Intent(context, ComplaintChatActivity::class.java)
                                             intent.putExtra("uid", notfy.userId)
                                             intent.putExtra("cid", notfy.complaintId)
-                                            intent.putExtra("name", notfy.userName)
+                                            intent.putExtra("name", decrypt(notfy.userName))
                                             intent.putExtra("profile", it.result.value.toString())
-                                            intent.putExtra("cnumber", notfy.complaintNumber)
+                                            intent.putExtra("cnumber", decrypt(notfy.complaintNumber))
                                             intent.putExtra("type", "c")
                                             intent.putExtra("status", notfy.complaintStatus)
-                                            intent.putExtra("against", notfy.complaintAgainst)
+                                            intent.putExtra("against", decrypt(notfy.complaintAgainst))
                                             adminHomeScreen.startActivity(intent)
                                         }
                                 }
@@ -197,12 +219,12 @@ class AdminHomeFragment : Fragment() {
                                                 Intent(context, ComplaintChatActivity::class.java)
                                             intent.putExtra("uid", notfy.userId)
                                             intent.putExtra("cid", notfy.complaintId)
-                                            intent.putExtra("name", notfy.userName)
+                                            intent.putExtra("name", decrypt(notfy.userName))
                                             intent.putExtra("profile", it.result.value.toString())
-                                            intent.putExtra("cnumber", notfy.complaintNumber)
+                                            intent.putExtra("cnumber", decrypt(notfy.complaintNumber))
                                             intent.putExtra("type", "d")
                                             intent.putExtra("status", notfy.complaintStatus)
-                                            intent.putExtra("against", notfy.complaintAgainst)
+                                            intent.putExtra("against", decrypt(notfy.complaintAgainst))
                                             adminHomeScreen.startActivity(intent)
                                         }
                                 }
@@ -213,7 +235,7 @@ class AdminHomeFragment : Fragment() {
                                             var intent =
                                                 Intent(adminHomeScreen, ChatActivity::class.java)
                                             intent.putExtra("uid", notfy.userId)
-                                            intent.putExtra("name", notfy.userName)
+                                            intent.putExtra("name", decrypt(notfy.userName))
                                             intent.putExtra("profile", it.result.value.toString())
                                             adminHomeScreen.startActivity(intent)
                                         }
@@ -339,7 +361,7 @@ class AdminHomeFragment : Fragment() {
                         dialogBinding.progressbar.visibility = View.VISIBLE
                         FirebaseDatabase.getInstance().reference.child("Admin")
                             .child("adminPasscode")
-                            .setValue(dialogBinding.etPassword.text.toString())
+                            .setValue(encrypt(dialogBinding.etPassword.text.toString()))
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     editorDetails.putString(

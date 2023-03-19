@@ -12,6 +12,7 @@ import android.net.NetworkInfo
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -29,6 +30,8 @@ import com.japnoor.anticorruptionadmin.databinding.FragmentUsersBinding
 import com.japnoor.anticorruptionadmin.databinding.PasscodeDialogBinding
 import com.japnoor.anticorruptionadmin.databinding.ShowUserDeatailsBinding
 import com.japnoor.anticorruptionadmin.demand.DemandLetter
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 
 private const val ARG_PARAM1 = "param1"
@@ -48,6 +51,22 @@ class UsersFragment : Fragment(), UsersClick {
     lateinit var adminHomeScreen: AdminHomeScreen
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
+
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
+
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +80,9 @@ class UsersFragment : Fragment(), UsersClick {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
         adminHomeScreen = activity as AdminHomeScreen
         sharedPreferencesDetails =
             adminHomeScreen.getSharedPreferences("Details", AppCompatActivity.MODE_PRIVATE)
@@ -121,9 +143,9 @@ class UsersFragment : Fragment(), UsersClick {
                         override fun afterTextChanged(s: Editable?) {
                             var filteredList = ArrayList<Users>()
                             for (item in arrayList) {
-                                if (item.name.toLowerCase()
+                                if (decrypt(item.name).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || item.email.toLowerCase()
+                                    || decrypt(item.email).toLowerCase()
                                         .contains(s.toString().toLowerCase())
                                 )
                                     filteredList.add(item)
@@ -237,15 +259,15 @@ class UsersFragment : Fragment(), UsersClick {
                 }
                 dialogBinding.cardEmail.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SEND)
-                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf(users.email))
+                    intent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf(decrypt(users.email)))
                     intent.type = "message/rfc822"
                     adminHomeScreen.startActivity(Intent.createChooser(intent, "Select email"))
                 }
 
-                dialogBinding.name.setText(users.name)
-                dialogBinding.email.setText(users.email)
-                dialogBinding.birthdate.setText(users.birthdate)
-                dialogBinding.date.setText(users.userDate)
+                dialogBinding.name.setText(decrypt(users.name))
+                dialogBinding.email.setText(decrypt(users.email))
+                dialogBinding.birthdate.setText(decrypt(users.birthdate))
+                dialogBinding.date.setText(decrypt(users.userDate))
                 println("Count-> " + complaintCount.toString())
 
                 dialogBinding.block.setOnClickListener {
@@ -390,7 +412,7 @@ class UsersFragment : Fragment(), UsersClick {
                         dialogBinding.progressbar.visibility = View.VISIBLE
                         FirebaseDatabase.getInstance().reference.child("Admin")
                             .child("adminPasscode")
-                            .setValue(dialogBinding.etPassword.text.toString())
+                            .setValue(encrypt(dialogBinding.etPassword.text.toString()))
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     editorDetails.putString(

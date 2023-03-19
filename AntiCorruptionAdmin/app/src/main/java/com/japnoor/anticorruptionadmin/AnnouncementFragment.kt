@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
+import android.util.Base64
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -28,6 +29,8 @@ import com.japnoor.anticorruptionadmin.databinding.FragmentAnnouncementBinding
 import com.japnoor.anticorruptionadmin.databinding.PasscodeDialogBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 import kotlin.collections.ArrayList
 
 private const val ARG_PARAM1 = "param1"
@@ -43,6 +46,23 @@ class AnnouncementFragment : Fragment(),AnnouncementsClick {
     lateinit var sharedPreferencesDetails: SharedPreferences
     lateinit var editorDetails: SharedPreferences.Editor
 
+    var encryptionKey: String? =null
+    var secretKeySpec: SecretKeySpec? =null
+    private fun encrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+        val encryptedBytes = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    }
+
+    private fun decrypt(input: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
+        val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))
+        return String(decryptedBytes, Charsets.UTF_8)
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -55,6 +75,9 @@ class AnnouncementFragment : Fragment(),AnnouncementsClick {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var forgot = ForogotPasscode()
+        encryptionKey=forgot.key()
+        secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
         setHasOptionsMenu(true)
 
         var binding =FragmentAnnouncementBinding.inflate(layoutInflater,container,false)
@@ -91,8 +114,8 @@ class AnnouncementFragment : Fragment(),AnnouncementsClick {
                 dialog.setContentView(dialogB.root)
                 dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 dialog.show()
-                    dialogB.subject.setText(announcements.subject.toString())
-                    dialogB.detail.setText(announcements.detail.toString())
+                    dialogB.subject.setText(decrypt(announcements.subject.toString()))
+                    dialogB.detail.setText(decrypt(announcements.detail.toString()))
                 dialogB.btnDone.setOnClickListener {
                     if(dialogB.subject.text.toString().isNullOrEmpty()){
                         dialogB.subject.error="Cannot be Empty"
@@ -104,8 +127,8 @@ class AnnouncementFragment : Fragment(),AnnouncementsClick {
                         dialogB.progressbar.visibility=View.VISIBLE
                         dialogB.btnDone.visibility=View.GONE
                          var announceMap = mutableMapOf<String,Any>()
-                             announceMap["subject"]=dialogB.subject.text.toString()
-                             announceMap["detail"]=dialogB.detail.text.toString()
+                             announceMap["subject"]=encrypt(dialogB.subject.text.toString())
+                             announceMap["detail"]=encrypt(dialogB.detail.text.toString())
                          FirebaseDatabase.getInstance().reference.child("Announcements").child(announcements.announcementsId).updateChildren(announceMap).addOnCompleteListener {
                              dialogB.progressbar.visibility=View.GONE
                              dialogB.btnDone.visibility=View.VISIBLE
@@ -144,9 +167,9 @@ class AnnouncementFragment : Fragment(),AnnouncementsClick {
                          FirebaseDatabase.getInstance().reference.child("Announcements")
                              .push().key.toString()
                      var announcements = Announcements(
-                         dialogB.subject.text.toString(),
-                         dialogB.detail.text.toString(),
-                         time.toString(),
+                         encrypt(dialogB.subject.text.toString()),
+                         encrypt(dialogB.detail.text.toString()),
+                         encrypt(time.toString()),
                          announcementsId
                      )
                      FirebaseDatabase.getInstance().reference.child("Announcements")
@@ -264,7 +287,7 @@ class AnnouncementFragment : Fragment(),AnnouncementsClick {
                         dialogBinding.progressbar.visibility = View.VISIBLE
                         FirebaseDatabase.getInstance().reference.child("Admin")
                             .child("adminPasscode")
-                            .setValue(dialogBinding.etPassword.text.toString())
+                            .setValue(encrypt(dialogBinding.etPassword.text.toString()))
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     editorDetails.putString(

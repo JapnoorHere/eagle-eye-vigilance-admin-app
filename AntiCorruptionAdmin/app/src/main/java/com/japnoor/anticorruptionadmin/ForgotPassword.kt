@@ -22,6 +22,7 @@ class ForgotPassword : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding= ActivityForgotPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         auth=FirebaseAuth.getInstance()
