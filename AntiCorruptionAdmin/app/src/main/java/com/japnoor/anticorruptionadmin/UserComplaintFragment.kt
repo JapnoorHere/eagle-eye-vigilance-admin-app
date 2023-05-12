@@ -242,7 +242,7 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                 }
 
                 dialogBind.fabAccepted.setOnClickListener {
-                    if (complaints.audioUrl.isNullOrEmpty()) {
+                    if (complaints.audioUrl.isNullOrEmpty() && complaints.imageUrl.isNullOrEmpty()) {
                         var sendEmail = SendEmail()
                         sendEmail.sendComplaint(
                             decrypt(complaints.userEmail),
@@ -253,9 +253,9 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                             decrypt(complaints.complaintDept),
                             decrypt(complaints.complaintCategory),
                             decrypt(complaints.complaintLoc),
-                            decrypt(complaints.complaintDistrict),"No",decrypt(complaints.videoUrl))
+                            decrypt(complaints.complaintDistrict),"No",decrypt(complaints.videoUrl),"No")
                     }
-                    else if(complaints.videoUrl.isNullOrEmpty()){
+                    else if(complaints.videoUrl.isNullOrEmpty() && complaints.imageUrl.isNullOrEmpty()){
                         var sendEmail = SendEmail()
                         sendEmail.sendComplaint(
                             decrypt(complaints.userEmail),
@@ -266,7 +266,20 @@ class UserComplaintFragment : Fragment(), UserComplaintClick {
                             decrypt(complaints.complaintDept),
                             decrypt(complaints.complaintCategory),
                             decrypt(complaints.complaintLoc),
-                            decrypt(complaints.complaintDistrict),decrypt(complaints.audioUrl),"No")
+                            decrypt(complaints.complaintDistrict),decrypt(complaints.audioUrl),"No","No")
+                    }
+                    else if(complaints.videoUrl.isNullOrEmpty() && complaints.audioUrl.isNullOrEmpty()){
+                        var sendEmail = SendEmail()
+                        sendEmail.sendComplaint(
+                            decrypt(complaints.userEmail),
+                            decrypt(complaints.userName),
+                            decrypt(complaints.complaintNumber),
+                            decrypt(complaints.complaintAgainst),
+                            decrypt(complaints.complaintDetails),
+                            decrypt(complaints.complaintDept),
+                            decrypt(complaints.complaintCategory),
+                            decrypt(complaints.complaintLoc),
+                            decrypt(complaints.complaintDistrict),"No","No",decrypt(complaints.imageUrl))
                     }
                     compref.child(complaints.complaintId).child("status").setValue("1")
                     var notificationid =

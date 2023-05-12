@@ -355,7 +355,7 @@ class ChatActivity : AppCompatActivity() {
             val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
             val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
             if (isConnected) {
-                val currentTimeMillis = System.currentTimeMillis()
+                    val currentTimeMillis = System.currentTimeMillis()
                 val formatter = SimpleDateFormat("dd/MM/yyyy-HH:mm")
                 val dateTime = Date(currentTimeMillis)
                 val time = formatter.format(dateTime)

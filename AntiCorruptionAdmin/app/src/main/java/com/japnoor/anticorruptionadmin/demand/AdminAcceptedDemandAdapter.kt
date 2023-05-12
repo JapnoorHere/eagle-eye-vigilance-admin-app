@@ -305,7 +305,6 @@ class AdminAcceptedDemandAdapter (var context: AdminHomeScreen,var demandletter:
         var forgot = ForogotPasscode()
         var encryptionKey=forgot.key()
         var secretKeySpec = SecretKeySpec(encryptionKey!!.toByteArray(), "AES")
-
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
         val decryptedBytes = cipher.doFinal(Base64.decode(input, Base64.DEFAULT))

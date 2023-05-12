@@ -14,7 +14,8 @@ class SendEmail {
         suspectLoc: String,
         userDistrict: String,
         audio: String,
-        video: String
+        video: String,
+        image : String
     ) {
         when (userDistrict) {
             "Amritsar" -> {
@@ -33,7 +34,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n" +
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -53,7 +55,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -73,7 +76,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -93,7 +97,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -113,7 +118,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -133,7 +139,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -153,7 +160,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -173,7 +181,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -193,7 +202,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -213,7 +223,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -233,7 +244,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -253,7 +265,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -273,7 +286,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -293,7 +307,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -313,7 +328,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -333,7 +349,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -353,7 +370,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -373,7 +391,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -393,7 +412,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -413,7 +433,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -433,7 +454,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -453,7 +475,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }
@@ -473,7 +496,8 @@ class SendEmail {
                             "7. Suspects Location : ${suspectLoc}\n" +
                             "8. User District : ${userDistrict}\n" +
                             "9. Complaint Audio : ${audio}\n" +
-                            "10. Complaint Video : ${video}\n"
+                            "10. Complaint Video : ${video}\n"+
+                            "11. Complaint Image : ${image}\n"
                 )
                 mail.execute()
             }

@@ -79,7 +79,7 @@ class AdminRejectedAdapter(
                 val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
                 val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
                 if (isConnected) {
-                    if (complaintsList[position].audioUrl.isNullOrEmpty()) {
+                    if (complaintsList[position].audioUrl.isNullOrEmpty() && complaintsList[position].imageUrl.isNullOrEmpty()) {
                         var sendEmail = SendEmail()
                         sendEmail.sendComplaint(
                             decrypt(complaintsList[position].userEmail),
@@ -90,9 +90,9 @@ class AdminRejectedAdapter(
                             decrypt(complaintsList[position].complaintDept),
                             decrypt(complaintsList[position].complaintCategory),
                             decrypt(complaintsList[position].complaintLoc),
-                            decrypt(complaintsList[position].complaintDistrict),"No",decrypt(complaintsList[position].videoUrl))
+                            decrypt(complaintsList[position].complaintDistrict),"No",decrypt(complaintsList[position].videoUrl),"No")
                     }
-                    else if(complaintsList[position].videoUrl.isNullOrEmpty()){
+                    else if(complaintsList[position].videoUrl.isNullOrEmpty() && complaintsList[position].imageUrl.isNullOrEmpty() ){
                         var sendEmail = SendEmail()
                         sendEmail.sendComplaint(
                             decrypt(complaintsList[position].userEmail),
@@ -103,7 +103,20 @@ class AdminRejectedAdapter(
                             decrypt(complaintsList[position].complaintDept),
                             decrypt(complaintsList[position].complaintCategory),
                             decrypt(complaintsList[position].complaintLoc),
-                            decrypt(complaintsList[position].complaintDistrict),decrypt(complaintsList[position].audioUrl),"No")
+                            decrypt(complaintsList[position].complaintDistrict),decrypt(complaintsList[position].audioUrl),"No","No")
+                    }
+                    else if(complaintsList[position].videoUrl.isNullOrEmpty() && complaintsList[position].audioUrl.isNullOrEmpty()){
+                        var sendEmail = SendEmail()
+                        sendEmail.sendComplaint(
+                            decrypt(complaintsList[position].userEmail),
+                            decrypt(complaintsList[position].userName),
+                            decrypt(complaintsList[position].complaintNumber),
+                            decrypt(complaintsList[position].complaintAgainst),
+                            decrypt(complaintsList[position].complaintDetails),
+                            decrypt(complaintsList[position].complaintDept),
+                            decrypt(complaintsList[position].complaintCategory),
+                            decrypt(complaintsList[position].complaintLoc),
+                            decrypt(complaintsList[position].complaintDistrict),"No","No",decrypt(complaintsList[position].imageUrl))
                     }
                     var notificationid =
                         FirebaseDatabase.getInstance().reference.child("Notifications")

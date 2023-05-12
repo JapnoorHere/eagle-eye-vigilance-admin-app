@@ -130,7 +130,7 @@ class AdminAcceptedDemand : Fragment(), DemandClick {
                                     || decrypt(item.demandNumber).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.demandDate).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.demandTime).toLowerCase().contains(s.toString().toLowerCase())
-                                    || decrypt(item.status).toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.userName).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.userEmail).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.demandDistrict).toLowerCase().contains(s.toString().toLowerCase())

@@ -143,7 +143,7 @@ class AdminRejectedDemand : Fragment(), DemandClick {
                                         .contains(s.toString().toLowerCase())
                                     || decrypt(item.demandTime).toLowerCase()
                                         .contains(s.toString().toLowerCase())
-                                    || decrypt(item.status).toLowerCase()
+                                    || item.status.toLowerCase()
                                         .contains(s.toString().toLowerCase())
                                     || decrypt(item.userName).toLowerCase()
                                         .contains(s.toString().toLowerCase())

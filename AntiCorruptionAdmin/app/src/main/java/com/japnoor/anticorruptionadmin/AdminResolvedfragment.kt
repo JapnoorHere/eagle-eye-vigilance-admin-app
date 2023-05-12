@@ -135,7 +135,7 @@ class AdminResolvedfragment : Fragment(),ComplaintClickedInterface {
                                     || decrypt(item.complaintNumber).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.complaintDate).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.complaintTime).toLowerCase().contains(s.toString().toLowerCase())
-                                    || decrypt(item.status).toLowerCase().contains(s.toString().toLowerCase())
+                                    || item.status.toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.userName).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.userEmail).toLowerCase().contains(s.toString().toLowerCase())
                                     || decrypt(item.complaintDistrict).toLowerCase().contains(s.toString().toLowerCase())
